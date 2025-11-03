@@ -1,144 +1,124 @@
 const asyncHandler = require('express-async-handler');
 const { google } = require('@ai-sdk/google');
 const { generateText } = require('ai');
-const User = require('../models/User');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
+const User = require('../models/User');
 
-// @desc    Get AI-powered product recommendations
+// @desc    Get AI-powered recommendations
 // @route   GET /api/recommendations
 // @access  Private
 const getRecommendations = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id)
-    .populate('likedProducts', 'title category price')
-    .populate('purchasedProducts', 'title category price')
-    .populate('viewedProducts.product', 'title category price')
-    .populate({
-      path: 'favoriteArtists',
-      select: 'name',
-    });
+  const userId = req.user._id;
 
-  // Get user's orders
-  const orders = await Order.find({ buyer: req.user._id })
-    .populate('product', 'title category price');
+  // Get user's interaction data
+  const user = await User.findById(userId)
+    .populate('likedProducts')
+    .populate('purchasedProducts')
+    .populate('viewedProducts.product');
 
-  // Build user preference profile
-  const likedCategories = user.likedProducts?.map(p => p.category) || [];
-  const purchasedCategories = orders.map(o => o.product?.category).filter(Boolean);
-  const viewedCategories = user.viewedProducts?.map(v => v.product?.category).filter(Boolean) || [];
-  
-  const allCategories = [...likedCategories, ...purchasedCategories, ...viewedCategories];
-  const categoryFrequency = {};
-  allCategories.forEach(cat => {
-    categoryFrequency[cat] = (categoryFrequency[cat] || 0) + 1;
-  });
-
-  // Get all available products
+  // Get all products
   const allProducts = await Product.find({ isActive: true })
     .populate('artisan', 'name')
-    .limit(100);
+    .lean();
 
-  // Prepare context for AI
-  const userContext = {
-    likedProducts: user.likedProducts?.map(p => ({ title: p.title, category: p.category })) || [],
-    purchasedProducts: orders.map(o => ({ title: o.product?.title, category: o.product?.category })),
-    viewedProducts: user.viewedProducts?.slice(-10).map(v => ({ title: v.product?.title, category: v.product?.category })) || [],
-    favoriteArtists: user.favoriteArtists?.map(a => a.name) || [],
-    preferredCategories: Object.entries(categoryFrequency)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
-      .map(([cat]) => cat),
+  // Prepare user preferences
+  const likedCategories = user.likedProducts?.map(p => p.category) || [];
+  const purchasedCategories = user.purchasedProducts?.map(p => p.category) || [];
+  const viewedCategories = user.viewedProducts?.map(v => v.product?.category).filter(Boolean) || [];
+
+  const userPreferences = {
+    likedCategories: [...new Set(likedCategories)],
+    purchasedCategories: [...new Set(purchasedCategories)],
+    viewedCategories: [...new Set(viewedCategories)],
   };
 
-  const productsContext = allProducts.map(p => ({
-    id: p._id.toString(),
+  const productsData = allProducts.map(p => ({
+    id: p._id,
     title: p.title,
     category: p.category,
     price: p.price,
-    artisan: p.artisan?.name,
-    likes: p.likesCount,
+    likesCount: p.likesCount,
   }));
 
   try {
-    const model = google('gemini-1.5-flash');
+    const model = google('gemini-2.0-flash-exp');
 
-    const prompt = `You are a product recommendation AI for a craft marketplace. Analyze the user's interaction history and recommend 6 products.
+    const prompt = `You are an AI recommendation system for handicraft products.
 
-User Interaction History:
-${JSON.stringify(userContext, null, 2)}
+User Profile:
+- Liked Categories: ${userPreferences.likedCategories.join(', ') || 'None'}
+- Purchased Categories: ${userPreferences.purchasedCategories.join(', ') || 'None'}
+- Viewed Categories: ${userPreferences.viewedCategories.join(', ') || 'None'}
 
 Available Products:
-${JSON.stringify(productsContext, null, 2)}
+${JSON.stringify(productsData, null, 2)}
 
-Based on the user's likes, purchases, views, and favorite artists, recommend 6 product IDs that best match their preferences. Consider:
-1. Categories they've shown interest in
-2. Products from their favorite artists
-3. Similar price ranges to what they've purchased
-4. Trending products with high likes
-5. Diversity in recommendations
+Based on the user's interaction history, recommend the TOP 10 most relevant products.
 
-Respond ONLY with a JSON array of 6 product IDs, nothing else. Format: ["id1", "id2", "id3", "id4", "id5", "id6"]`;
+PRIORITIZE:
+1. Categories the user has purchased from (highest priority)
+2. Categories the user has liked
+3. Categories the user has viewed
+4. Popular products (high likes count)
+5. Variety in recommendations
+
+Return ONLY a JSON array of product IDs in order of relevance:
+["productId1", "productId2", "productId3", ...]
+
+Return ONLY the JSON array, no markdown, no explanation.`;
 
     const { text } = await generateText({
       model,
       prompt,
+      temperature: 0.7,
+      maxTokens: 1000,
     });
 
-    // Parse AI response
-    let recommendedIds = [];
-    try {
-      recommendedIds = JSON.parse(text.trim());
-    } catch (parseError) {
-      // Fallback: extract IDs from response
-      const matches = text.match(/"([a-f0-9]{24})"/g);
-      if (matches) {
-        recommendedIds = matches.map(m => m.replace(/"/g, '')).slice(0, 6);
-      }
-    }
+    const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const recommendedIds = JSON.parse(cleanedText);
 
-    // Get recommended products
+    // Get full product details
     const recommendedProducts = await Product.find({
       _id: { $in: recommendedIds },
-      isActive: true,
-    }).populate('artisan', 'name');
+    })
+      .populate('artisan', 'name email')
+      .lean();
 
-    // If less than 6, fill with popular products
-    if (recommendedProducts.length < 6) {
-      const additionalProducts = await Product.find({
-        _id: { $nin: recommendedIds },
-        isActive: true,
-      })
-        .sort({ likesCount: -1, createdAt: -1 })
-        .limit(6 - recommendedProducts.length)
-        .populate('artisan', 'name');
-      
-      recommendedProducts.push(...additionalProducts);
-    }
+    // Sort according to AI recommendation order
+    const sortedRecommendations = recommendedIds
+      .map(id => recommendedProducts.find(p => p._id.toString() === id))
+      .filter(Boolean);
 
     res.json({
       success: true,
-      count: recommendedProducts.length,
-      data: recommendedProducts,
+      count: sortedRecommendations.length,
+      data: sortedRecommendations,
     });
   } catch (error) {
     console.error('AI Recommendation Error:', error);
     
-    // Fallback to simple recommendation
-    const fallbackProducts = await Product.find({
-      $or: [
-        { category: { $in: Object.keys(categoryFrequency) } },
-        { artisan: { $in: user.favoriteArtists || [] } },
-      ],
-      isActive: true,
-    })
-      .sort({ likesCount: -1, createdAt: -1 })
-      .limit(6)
-      .populate('artisan', 'name');
-
+    // Fallback: recommend based on liked and purchased categories
+    const preferredCategories = [...new Set([...userPreferences.purchasedCategories, ...userPreferences.likedCategories])];
+    
+    let fallbackRecommendations = [];
+    
+    if (preferredCategories.length > 0) {
+      fallbackRecommendations = allProducts
+        .filter(p => preferredCategories.includes(p.category))
+        .slice(0, 10);
+    }
+    
+    if (fallbackRecommendations.length === 0) {
+      fallbackRecommendations = allProducts
+        .sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0))
+        .slice(0, 10);
+    }
+    
     res.json({
       success: true,
-      count: fallbackProducts.length,
-      data: fallbackProducts,
+      count: fallbackRecommendations.length,
+      data: fallbackRecommendations,
       fallback: true,
     });
   }
@@ -150,27 +130,38 @@ Respond ONLY with a JSON array of 6 product IDs, nothing else. Format: ["id1", "
 const trackProductView = asyncHandler(async (req, res) => {
   const { productId } = req.body;
 
-  const user = await User.findById(req.user._id);
-  
-  if (!user.viewedProducts) {
-    user.viewedProducts = [];
+  if (!productId) {
+    res.status(400);
+    throw new Error('Product ID is required');
   }
 
-  // Remove if already exists
-  user.viewedProducts = user.viewedProducts.filter(
-    v => v.product.toString() !== productId
+  const product = await Product.findById(productId);
+  
+  if (!product) {
+    res.status(404);
+    throw new Error('Product not found');
+  }
+
+  // Update user's viewed products
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $pull: { viewedProducts: { product: productId } }, // Remove old entry if exists
+    }
   );
 
-  // Add to beginning
-  user.viewedProducts.unshift({
-    product: productId,
-    viewedAt: new Date(),
-  });
-
-  // Keep only last 50 views
-  user.viewedProducts = user.viewedProducts.slice(0, 50);
-
-  await user.save();
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $push: {
+        viewedProducts: {
+          $each: [{ product: productId, viewedAt: new Date() }],
+          $position: 0,
+          $slice: 50, // Keep only last 50 viewed products
+        },
+      },
+    }
+  );
 
   res.json({
     success: true,

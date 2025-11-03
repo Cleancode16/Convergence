@@ -1,10 +1,11 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle, Users, Wallet, FileText, Award } from 'lucide-react';
+import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle, Users, Wallet, FileText, Award, Calendar } from 'lucide-react';
 import { logout } from '../redux/actions/authActions';
 import { getProfileStatus, getProfile } from '../services/artisanService';
 import { getBalance } from '../services/walletService';
+import { getMyWorkshops } from '../services/workshopService';
 import confetti from 'canvas-confetti';
 
 const ArtisanDashboard = () => {
@@ -15,6 +16,7 @@ const ArtisanDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
   const [walletBalance, setWalletBalance] = useState(0);
+  const [workshops, setWorkshops] = useState([]);
   const confettiTriggered = useRef(false);
 
   useEffect(() => {
@@ -60,8 +62,18 @@ const ArtisanDashboard = () => {
       }
     };
 
+    const fetchWorkshops = async () => {
+      try {
+        const data = await getMyWorkshops(userInfo.token);
+        setWorkshops(data.data || []);
+      } catch (error) {
+        console.error('Error fetching workshops:', error);
+      }
+    };
+
     if (userInfo?.token) {
       checkProfileStatus();
+      fetchWorkshops();
     }
   }, [userInfo, navigate]);
 
@@ -377,6 +389,54 @@ const ArtisanDashboard = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">NGO Connections</h3>
             <p className="text-gray-600 text-sm">View requests & connected NGOs</p>
           </div>
+
+          {/* Add Workshop Card after Products card */}
+          <div
+            onClick={() => navigate('/create-workshop')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4">
+              <Calendar className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Create Workshop</h3>
+            <p className="text-gray-600 text-sm">Host a workshop for your craft</p>
+          </div>
+        </div>
+
+        {/* My Workshops Section */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">My Workshops</h2>
+            <button
+              onClick={() => navigate('/create-workshop')}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm"
+            >
+              + Create Workshop
+            </button>
+          </div>
+
+          {workshops.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No workshops created yet</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {workshops.map((workshop) => (
+                <div
+                  key={workshop._id}
+                  onClick={() => navigate(`/workshop/${workshop._id}`)}
+                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+                >
+                  <h3 className="font-semibold text-gray-900 mb-2">{workshop.name}</h3>
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">{workshop.description}</p>
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <span>{new Date(workshop.date).toLocaleDateString()}</span>
+                    <span className="font-medium text-purple-600">
+                      {workshop.enrolledUsers.length}/{workshop.totalSlots} enrolled
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>

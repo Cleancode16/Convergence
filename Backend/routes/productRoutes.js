@@ -6,6 +6,7 @@ const {
   updateProduct,
   deleteProduct,
   toggleLike,
+  getFavoriteProducts,
 } = require('../controllers/productController');
 const { protect, artisanOnly } = require('../middleware/authMiddleware');
 
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.get('/', getProducts);
 router.post('/', protect, artisanOnly, createProduct);
+router.get('/favorites', protect, getFavoriteProducts); // Must come BEFORE /:id
 router.get('/:id', getProduct);
 router.put('/:id', protect, artisanOnly, updateProduct);
 router.delete('/:id', protect, artisanOnly, deleteProduct);

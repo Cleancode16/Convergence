@@ -18,6 +18,9 @@ const recommendationRoutes = require('./routes/recommendationRoutes');
 const artStoryRoutes = require('./routes/artStoryRoutes');
 const schemeRoutes = require('./routes/schemeRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const sponsorRoutes = require('./routes/sponsorRoutes');
+const aiGuidanceRoutes = require('./routes/aiGuidanceRoutes');
+const workshopRoutes = require('./routes/workshopRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -52,6 +55,9 @@ app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/art-stories', artStoryRoutes);
 app.use('/api/schemes', schemeRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/sponsors', sponsorRoutes);
+app.use('/api/ai-guidance', aiGuidanceRoutes);
+app.use('/api/workshops', workshopRoutes);
 
 // Socket.IO
 const userSocketMap = new Map();

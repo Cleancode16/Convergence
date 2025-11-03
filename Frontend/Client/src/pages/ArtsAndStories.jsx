@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { ArrowLeft, BookOpen, ExternalLink, Calendar, Eye, Sparkles, Filter, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, ExternalLink, Calendar, Eye, Sparkles, Search, X } from 'lucide-react';
 import { getAllStories } from '../services/artStoryService';
 
 const ArtsAndStories = () => {
@@ -12,7 +12,6 @@ const ArtsAndStories = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedArtForm, setSelectedArtForm] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
-  const [showFilters, setShowFilters] = useState(false);
 
   // Available art forms (extracted from stories)
   const [artForms, setArtForms] = useState([]);
@@ -42,11 +41,6 @@ const ArtsAndStories = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchStories();
   };
 
   const handleOpenStory = (storybookLink) => {
@@ -105,46 +99,41 @@ const ArtsAndStories = () => {
               </button>
               <div className="flex items-center gap-3">
                 <BookOpen className="w-8 h-8 text-white" />
-                <h1 className="text-2xl font-bold text-white">Arts & Stories</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-white">Arts & Stories</h1>
               </div>
             </div>
           </div>
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Compact Search & Filters Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="mb-4">
-            <div className="relative">
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Discover Indian Art Forms</h2>
+          </div>
+
+          {/* Search and Filters in One Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            {/* Search Bar */}
+            <div className="sm:col-span-5 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search for art forms, titles, or keywords..."
-                className="w-full px-6 py-3 pr-24 rounded-xl border-2 border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Search stories..."
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
               />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition text-sm font-medium"
-              >
-                Search
-              </button>
             </div>
-          </form>
 
-          {/* Filters Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Art Form Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Art Form
-              </label>
+            <div className="sm:col-span-3">
               <select
                 value={selectedArtForm}
                 onChange={(e) => setSelectedArtForm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
               >
                 <option value="all">All Art Forms</option>
                 {artForms.map((form) => (
@@ -154,70 +143,60 @@ const ArtsAndStories = () => {
             </div>
 
             {/* Sort By Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sort By
-              </label>
+            <div className="sm:col-span-3">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
                 <option value="popular">Most Popular</option>
-                <option value="alphabetical">Alphabetical (A-Z)</option>
+                <option value="alphabetical">A-Z</option>
               </select>
             </div>
 
-            {/* Clear Filters Button */}
-            <div className="flex items-end">
-              {(selectedArtForm !== 'all' || sortBy !== 'newest' || searchTerm) && (
+            {/* Clear Button */}
+            {(selectedArtForm !== 'all' || sortBy !== 'newest' || searchTerm) && (
+              <div className="sm:col-span-1">
                 <button
                   onClick={clearFilters}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition border border-indigo-200"
+                  className="w-full px-3 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center justify-center"
+                  title="Clear filters"
                 >
-                  <X className="w-4 h-4" />
-                  Clear Filters
+                  <X className="w-5 h-5" />
                 </button>
+              </div>
+            )}
+          </div>
+
+          {/* Active Filters Tags */}
+          {(selectedArtForm !== 'all' || sortBy !== 'newest') && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {selectedArtForm !== 'all' && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
+                  {selectedArtForm}
+                  <button onClick={() => setSelectedArtForm('all')} className="hover:text-indigo-900">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {sortBy !== 'newest' && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                  {sortBy === 'oldest' ? 'Oldest' : sortBy === 'popular' ? 'Popular' : 'A-Z'}
+                  <button onClick={() => setSortBy('newest')} className="hover:text-purple-900">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
               )}
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Active Filters Display */}
-        {(selectedArtForm !== 'all' || sortBy !== 'newest') && (
-          <div className="mb-6 flex flex-wrap gap-2">
-            {selectedArtForm !== 'all' && (
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium">
-                Art Form: {selectedArtForm}
-                <button
-                  onClick={() => setSelectedArtForm('all')}
-                  className="hover:text-indigo-900"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </span>
-            )}
-            {sortBy !== 'newest' && (
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium">
-                Sort: {sortBy === 'oldest' ? 'Oldest First' : sortBy === 'popular' ? 'Most Popular' : 'Alphabetical'}
-                <button
-                  onClick={() => setSortBy('newest')}
-                  className="hover:text-purple-900"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </span>
-            )}
-          </div>
-        )}
-
         {/* Stats */}
-        <div className="mb-6 flex items-center justify-between">
-          <p className="text-gray-700 text-lg">
-            <span className="font-bold text-indigo-600">{filteredStories.length}</span> {filteredStories.length === 1 ? 'story' : 'stories'} 
-            {selectedArtForm !== 'all' && <span className="text-gray-500"> in {selectedArtForm}</span>}
+        <div className="mb-4">
+          <p className="text-gray-700 text-sm">
+            <span className="font-bold text-indigo-600">{filteredStories.length}</span> {filteredStories.length === 1 ? 'story' : 'stories'} found
           </p>
         </div>
 
@@ -231,11 +210,11 @@ const ArtsAndStories = () => {
           <div className="bg-white rounded-2xl shadow-lg p-16 text-center">
             <BookOpen className="w-20 h-20 text-gray-400 mx-auto mb-4" />
             <h3 className="text-2xl font-bold text-gray-900 mb-2">No stories found</h3>
-            <p className="text-gray-500">Try adjusting your search or filters!</p>
-            {(selectedArtForm !== 'all' || searchTerm) && (
+            <p className="text-gray-500 mb-4">Try adjusting your search or filters!</p>
+            {(selectedArtForm !== 'all' || searchTerm || sortBy !== 'newest') && (
               <button
                 onClick={clearFilters}
-                className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
               >
                 Clear Filters
               </button>

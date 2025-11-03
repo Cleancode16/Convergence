@@ -162,17 +162,23 @@ const toggleLike = asyncHandler(async (req, res) => {
     product.likes = product.likes.filter(id => id.toString() !== req.user._id.toString());
     product.likesCount = product.likes.length;
     
-    // Remove from user's liked products
+    // Remove from user's liked and favorite products
     await User.findByIdAndUpdate(req.user._id, {
-      $pull: { likedProducts: req.params.id }
+      $pull: { 
+        likedProducts: req.params.id,
+        favoriteProducts: req.params.id 
+      }
     });
   } else {
     product.likes.push(req.user._id);
     product.likesCount = product.likes.length;
     
-    // Add to user's liked products
+    // Add to user's liked and favorite products
     await User.findByIdAndUpdate(req.user._id, {
-      $addToSet: { likedProducts: req.params.id }
+      $addToSet: { 
+        likedProducts: req.params.id,
+        favoriteProducts: req.params.id 
+      }
     });
   }
 
@@ -185,6 +191,25 @@ const toggleLike = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get user's favorite products
+// @route   GET /api/products/favorites
+// @access  Private
+const getFavoriteProducts = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).populate({
+    path: 'favoriteProducts',
+    populate: {
+      path: 'artisan',
+      select: 'name email',
+    },
+  });
+
+  res.json({
+    success: true,
+    count: user.favoriteProducts.length,
+    data: user.favoriteProducts,
+  });
+});
+
 module.exports = {
   createProduct,
   getProducts,
@@ -192,4 +217,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   toggleLike,
+  getFavoriteProducts,
 };

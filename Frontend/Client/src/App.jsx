@@ -27,6 +27,10 @@ import ArtsAndStories from './pages/ArtsAndStories';
 import ArtStoryReader from './pages/ArtStoryReader';
 import Schemes from './pages/Schemes';
 import Analytics from './pages/Analytics';
+import NGOSponsors from './pages/NGOSponsors';
+import Workshops from './pages/Workshops';
+import WorkshopDetails from './pages/WorkshopDetails';
+import CreateWorkshop from './pages/CreateWorkshop';
 
 function App() {
   return (
@@ -243,6 +247,11 @@ function App() {
               </ProtectedRoute>
             }
           />
+          
+          <Route path="/ngo-sponsors" element={<NGOSponsors />} />
+          <Route path="/workshops" element={<Workshops />} />
+          <Route path="/workshop/:id" element={<WorkshopDetails />} />
+          <Route path="/create-workshop" element={<CreateWorkshop />} />
         </Routes>
       </Router>
     </Provider>

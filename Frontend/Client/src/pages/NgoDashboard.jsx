@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Users, DollarSign, FileText, BookOpen, Calendar, TrendingUp, Settings, LogOut } from 'lucide-react';
+import { Users, DollarSign, FileText, BookOpen, Calendar, TrendingUp, Settings, LogOut, Building2 } from 'lucide-react';
 import { logout } from '../redux/actions/authActions';
 import { getProfileStatus } from '../services/ngoService';
 
@@ -155,6 +155,18 @@ const NgoDashboard = () => {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Events</h3>
             <p className="text-gray-600 text-sm">Organize workshops</p>
+          </div>
+
+          {/* Add this new card in the dashboard grid */}
+          <div
+            onClick={() => navigate('/ngo-sponsors')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4">
+              <Building2 className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Corporate Sponsors</h3>
+            <p className="text-gray-600 text-sm">Find CSR funding opportunities</p>
           </div>
         </div>
       </main>

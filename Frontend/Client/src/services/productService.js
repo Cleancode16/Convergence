@@ -105,3 +105,16 @@ export const uploadToCloudinary = async (file, cloudName, uploadPreset) => {
     throw new Error('Failed to upload file to Cloudinary');
   }
 };
+
+// Get user's favorite products
+export const getFavoriteProducts = async (token) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/favorites`,
+      getAuthHeader(token)
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch favorites');
+  }
+};

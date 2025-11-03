@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     }],
+    favoriteProducts: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+    }],
     likedProducts: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Product',
