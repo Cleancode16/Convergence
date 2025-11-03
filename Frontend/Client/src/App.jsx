@@ -37,13 +37,14 @@ import NGODonations from './pages/NGODonations';
 import MyDonations from './pages/MyDonations';
 import UserProfile from './pages/UserProfile';
 import NGOReports from './pages/NGOReports';
+import LandingPage from './pages/LandingPage';
 
 function App() {
   return (
     <Provider store={store}>
       <Router>
         <Routes>
-          <Route path="/" element={<Navigate to="/signin" replace />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
           
