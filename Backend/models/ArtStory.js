@@ -12,6 +12,14 @@ const artStorySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    storybookLink: {
+      type: String,
+      default: '',
+    },
+    description: {
+      type: String,
+      default: '',
+    },
     coverImage: {
       type: String,
       required: true,

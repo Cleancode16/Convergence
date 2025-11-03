@@ -1,6 +1,7 @@
 const express = require('express');
 const {
-  generateArtStory,
+  createArtStory,
+  updateArtStory,
   getAllStories,
   getStory,
   toggleLike,
@@ -11,8 +12,9 @@ const { protect, adminOnly } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 router.get('/', getAllStories);
-router.post('/generate', protect, adminOnly, generateArtStory);
+router.post('/', protect, adminOnly, createArtStory);
 router.get('/:id', getStory);
+router.put('/:id', protect, adminOnly, updateArtStory);
 router.put('/:id/like', protect, toggleLike);
 router.delete('/:id', protect, adminOnly, deleteStory);
 

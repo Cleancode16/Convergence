@@ -27,15 +27,6 @@ export const getStory = async (id) => {
   }
 };
 
-export const generateStory = async (artForm, token) => {
-  try {
-    const response = await axios.post(`${API_URL}/generate`, { artForm }, getAuthHeader(token));
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response?.data?.message || 'Failed to generate story');
-  }
-};
-
 export const toggleLike = async (id, token) => {
   try {
     const response = await axios.put(`${API_URL}/${id}/like`, {}, getAuthHeader(token));
@@ -51,5 +42,23 @@ export const deleteStory = async (id, token) => {
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to delete story');
+  }
+};
+
+export const createArtStory = async (storyData, token) => {
+  try {
+    const response = await axios.post(`${API_URL}`, storyData, getAuthHeader(token));
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to create story');
+  }
+};
+
+export const updateArtStory = async (id, storyData, token) => {
+  try {
+    const response = await axios.put(`${API_URL}/${id}`, storyData, getAuthHeader(token));
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to update story');
   }
 };

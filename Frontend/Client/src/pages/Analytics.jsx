@@ -1,0 +1,405 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { ArrowLeft, TrendingUp, ShoppingCart, Package, DollarSign, Calendar, Download } from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { getSalesAnalytics, getProductAnalytics } from '../services/analyticsService';
+import { getProducts } from '../services/productService';
+
+const Analytics = () => {
+  const navigate = useNavigate();
+  const { userInfo } = useSelector((state) => state.auth);
+  const [period, setPeriod] = useState('daily');
+  const [analytics, setAnalytics] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productAnalytics, setProductAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [productLoading, setProductLoading] = useState(false);
+
+  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [period]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchAnalytics = async () => {
+    try {
+      setLoading(true);
+      const data = await getSalesAnalytics(period, userInfo.token);
+      setAnalytics(data.data);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const data = await getProducts({ artisan: userInfo._id });
+      setProducts(data.data || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
+  const fetchProductAnalytics = async (productId) => {
+    try {
+      setProductLoading(true);
+      const data = await getProductAnalytics(productId, userInfo.token);
+      setProductAnalytics(data.data);
+    } catch (error) {
+      console.error('Error fetching product analytics:', error);
+    } finally {
+      setProductLoading(false);
+    }
+  };
+
+  const handleProductSelect = (productId) => {
+    setSelectedProduct(productId);
+    if (productId) {
+      fetchProductAnalytics(productId);
+    } else {
+      setProductAnalytics(null);
+    }
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+          <p className="font-semibold text-gray-900 mb-2">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              {entry.name}: {entry.name.includes('Revenue') ? formatCurrency(entry.value) : entry.value}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-700">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Header */}
+      <nav className="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/artisan-dashboard')}
+                className="text-white hover:text-gray-200 transition"
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-8 h-8 text-white" />
+                <h1 className="text-2xl font-bold text-white">Sales Analytics</h1>
+              </div>
+            </div>
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-4 py-2 bg-white text-indigo-600 rounded-lg hover:bg-gray-100 transition"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Period Selector */}
+        <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-indigo-600" />
+              <h2 className="text-lg font-bold text-gray-900">Time Period</h2>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {['daily', 'weekly', 'monthly'].map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPeriod(p)}
+                  className={`px-4 py-2 rounded-lg font-medium transition ${
+                    period === p
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Summary Cards */}
+        {analytics && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+              <div className="flex items-center justify-between mb-2">
+                <DollarSign className="w-8 h-8 opacity-80" />
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-medium opacity-90 mb-1">Total Revenue</h3>
+              <p className="text-3xl font-bold">{formatCurrency(analytics.summary.totalRevenue)}</p>
+            </div>
+
+            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+              <div className="flex items-center justify-between mb-2">
+                <ShoppingCart className="w-8 h-8 opacity-80" />
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-medium opacity-90 mb-1">Total Orders</h3>
+              <p className="text-3xl font-bold">{analytics.summary.totalOrders}</p>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+              <div className="flex items-center justify-between mb-2">
+                <Package className="w-8 h-8 opacity-80" />
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-medium opacity-90 mb-1">Items Sold</h3>
+              <p className="text-3xl font-bold">{analytics.summary.totalQuantity}</p>
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
+              <div className="flex items-center justify-between mb-2">
+                <DollarSign className="w-8 h-8 opacity-80" />
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-medium opacity-90 mb-1">Avg Order Value</h3>
+              <p className="text-3xl font-bold">{formatCurrency(analytics.summary.averageOrderValue)}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Revenue Trend Chart */}
+        {analytics && (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Revenue Trend</h2>
+            <ResponsiveContainer width="100%" height={400}>
+              <AreaChart data={analytics.timeSeriesData}>
+                <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="date" stroke="#6B7280" style={{ fontSize: '12px' }} />
+                <YAxis stroke="#6B7280" style={{ fontSize: '12px' }} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Area 
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="#3B82F6" 
+                  fillOpacity={1} 
+                  fill="url(#colorRevenue)" 
+                  name="Revenue (₹)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Orders & Quantity Chart */}
+        {analytics && (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Orders & Quantity Sold</h2>
+            <ResponsiveContainer width="100%" height={350}>
+              <LineChart data={analytics.timeSeriesData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="date" stroke="#6B7280" style={{ fontSize: '12px' }} />
+                <YAxis stroke="#6B7280" style={{ fontSize: '12px' }} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="orders" 
+                  stroke="#10B981" 
+                  strokeWidth={3}
+                  dot={{ fill: '#10B981', r: 4 }}
+                  name="Orders"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="quantity" 
+                  stroke="#8B5CF6" 
+                  strokeWidth={3}
+                  dot={{ fill: '#8B5CF6', r: 4 }}
+                  name="Quantity"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Top Products & Category Sales */}
+        <div className="grid grid-cols-1 gap-6 mb-6">
+          {/* Top Products - Full Width */}
+          {analytics && analytics.topProducts.length > 0 && (
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Top Selling Products by Revenue</h2>
+              <ResponsiveContainer width="100%" height={500}>
+                <PieChart>
+                  <Pie
+                    data={analytics.topProducts.slice(0, 8)}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={true}
+                    label={({ product, percent }) => `${product.title.substring(0, 20)}... (${(percent * 100).toFixed(1)}%)`}
+                    outerRadius={180}
+                    fill="#8884d8"
+                    dataKey="revenue"
+                  >
+                    {analytics.topProducts.slice(0, 8).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36}
+                    formatter={(value, entry) => `${entry.payload.product?.title || 'Product'}`}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+
+        {/* Product-Specific Analysis */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Product-Specific Analysis</h2>
+          
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Product
+            </label>
+            <select
+              value={selectedProduct || ''}
+              onChange={(e) => handleProductSelect(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">-- Choose a product --</option>
+              {products.map((product) => (
+                <option key={product._id} value={product._id}>
+                  {product.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {productLoading && (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+            </div>
+          )}
+
+          {productAnalytics && !productLoading && (
+            <div>
+              {/* Product Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {formatCurrency(productAnalytics.summary.totalRevenue)}
+                  </p>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 mb-1">Total Orders</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {productAnalytics.summary.totalOrders}
+                  </p>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 mb-1">Units Sold</p>
+                  <p className="text-2xl font-bold text-purple-600">
+                    {productAnalytics.summary.totalQuantity}
+                  </p>
+                </div>
+                <div className="bg-orange-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 mb-1">Avg Order Value</p>
+                  <p className="text-2xl font-bold text-orange-600">
+                    {formatCurrency(productAnalytics.summary.averageOrderValue)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Product Sales Trend */}
+              <h3 className="text-lg font-bold text-gray-900 mb-4">30-Day Sales Trend</h3>
+              <ResponsiveContainer width="100%" height={350}>
+                <AreaChart data={productAnalytics.dailySales}>
+                  <defs>
+                    <linearGradient id="productRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#10B981" stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="date" stroke="#6B7280" style={{ fontSize: '12px' }} />
+                  <YAxis stroke="#6B7280" style={{ fontSize: '12px' }} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend />
+                  <Area 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="#10B981" 
+                    fillOpacity={1} 
+                    fill="url(#productRevenue)" 
+                    name="Revenue (₹)"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="quantity" 
+                    stroke="#8B5CF6" 
+                    strokeWidth={2}
+                    dot={{ fill: '#8B5CF6', r: 3 }}
+                    name="Quantity"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {!selectedProduct && !productLoading && (
+            <div className="text-center py-12 text-gray-500">
+              <Package className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p>Select a product to view detailed analytics</p>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Analytics;

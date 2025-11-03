@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { ArrowLeft, Heart, Sparkles, BookOpen, ChevronRight, ChevronLeft, Home } from 'lucide-react';
+import { ArrowLeft, Heart, Sparkles, BookOpen, ChevronRight, ChevronLeft, Home, ExternalLink } from 'lucide-react';
 import { getStory, toggleLike } from '../services/artStoryService';
 
 const ArtStoryReader = () => {
@@ -12,6 +12,7 @@ const ArtStoryReader = () => {
   const [loading, setLoading] = useState(true);
   const [currentSection, setCurrentSection] = useState('introduction');
   const [currentChapter, setCurrentChapter] = useState(0);
+  const [iframeError, setIframeError] = useState(false);
 
   useEffect(() => {
     fetchStory();
@@ -144,20 +145,68 @@ const ArtStoryReader = () => {
           {/* Content */}
           <div className="lg:col-span-3">
             <div className="bg-white rounded-lg shadow-md p-8">
-              {/* Introduction */}
+              {/* Introduction with Embedded Storybook */}
               {currentSection === 'introduction' && (
                 <div>
                   <div className="mb-6">
-                    <img
-                      src={story.coverImage}
-                      alt={story.title}
-                      className="w-full h-96 object-cover rounded-lg mb-6"
-                    />
-                    <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className="w-5 h-5 text-purple-600" />
-                      <span className="text-sm text-purple-600 font-semibold">AI Generated Story</span>
-                    </div>
-                    <h2 className="text-4xl font-bold text-gray-900 mb-4">{story.title}</h2>
+                    {story.storybookLink ? (
+                      <div className="relative w-full">
+                        {/* Try to embed first */}
+                        {!iframeError ? (
+                          <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden" style={{ paddingBottom: '100%', minHeight: '600px' }}>
+                            <iframe
+                              src={story.storybookLink}
+                              className="absolute top-0 left-0 w-full h-full rounded-lg border-2 border-indigo-200"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              allowFullScreen
+                              sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation allow-popups-to-escape-sandbox"
+                              title={story.title}
+                              onError={() => setIframeError(true)}
+                            ></iframe>
+                            
+                            {/* Fallback button if iframe doesn't load */}
+                            <div className="absolute bottom-4 right-4 z-10">
+                              <a
+                                href={story.storybookLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-white text-indigo-600 rounded-lg shadow-lg hover:bg-gray-50 transition text-sm font-medium"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                                Open in New Tab
+                              </a>
+                            </div>
+                          </div>
+                        ) : (
+                          /* Fallback UI when iframe fails */
+                          <div className="w-full bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-lg p-8 text-center">
+                            <BookOpen className="w-20 h-20 text-indigo-600 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-gray-900 mb-3">Gemini Storybook</h3>
+                            <p className="text-gray-700 mb-6">
+                              This content cannot be embedded directly. Click below to view it.
+                            </p>
+                            <a
+                              href={story.storybookLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition font-semibold shadow-lg"
+                            >
+                              <Sparkles className="w-5 h-5" />
+                              Open Gemini Storybook
+                              <ExternalLink className="w-5 h-5" />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <img
+                        src={story.coverImage}
+                        alt={story.title}
+                        className="w-full h-96 object-cover rounded-lg"
+                      />
+                    )}
+                    <h2 className="text-4xl font-bold text-gray-900 my-6">{story.title}</h2>
                     <p className="text-xl text-indigo-600 font-semibold mb-6">{story.artForm}</p>
                   </div>
                   <div className="prose prose-lg max-w-none">

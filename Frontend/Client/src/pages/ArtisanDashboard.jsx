@@ -356,12 +356,15 @@ const ArtisanDashboard = () => {
             <p className="text-gray-600 text-sm">Customer feedback</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
+          <div 
+            onClick={() => navigate('/analytics')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
             <div className="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-lg mb-4">
               <BarChart3 className="w-6 h-6 text-indigo-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Analytics</h3>
-            <p className="text-gray-600 text-sm">Sales insights</p>
+            <p className="text-gray-600 text-sm">Sales insights & charts</p>
           </div>
 
           <div 

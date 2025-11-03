@@ -26,6 +26,7 @@ import ArtistPostDetails from './pages/ArtistPostDetails';
 import ArtsAndStories from './pages/ArtsAndStories';
 import ArtStoryReader from './pages/ArtStoryReader';
 import Schemes from './pages/Schemes';
+import Analytics from './pages/Analytics';
 
 function App() {
   return (
@@ -230,6 +231,15 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['artisan']}>
                 <Schemes />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoute allowedRoles={['artisan']}>
+                <Analytics />
               </ProtectedRoute>
             }
           />

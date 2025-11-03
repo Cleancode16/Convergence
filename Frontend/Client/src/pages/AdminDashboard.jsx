@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Users, CheckCircle, AlertCircle, XCircle, Clock, LogOut, Search } from 'lucide-react';
 import { logout } from '../redux/actions/authActions';
 import { getArtisanStats, getAllArtisans, verifyArtisan, markAsFraud, rejectArtisan } from '../services/adminService';
-import { generateStory, getAllStories, deleteStory } from '../services/artStoryService';
+import { createArtStory, updateArtStory, getAllStories, deleteStory } from '../services/artStoryService';
 
 const AdminDashboard = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -21,8 +21,14 @@ const AdminDashboard = () => {
   const [modalAction, setModalAction] = useState('');
   const [notes, setNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
-  const [generatingStory, setGeneratingStory] = useState(false);
-  const [selectedArtForm, setSelectedArtForm] = useState('');
+  const [showStoryModal, setShowStoryModal] = useState(false);
+  const [editingStory, setEditingStory] = useState(null);
+  const [storyForm, setStoryForm] = useState({
+    artForm: '',
+    title: '',
+    storybookLink: '',
+    description: '',
+  });
 
   const artForms = [
     'Pottery', 'Weaving', 'Tanjore Paintings', 'Puppetry', 'Dokra Jewellery',
@@ -32,7 +38,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchData();
-    fetchStories(); // Add this to fetch stories on mount
+    fetchStories();
   }, [userInfo, filterStatus, searchTerm]);
 
   const fetchData = async () => {
@@ -110,27 +116,41 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleGenerateStory = async () => {
-    if (!selectedArtForm) {
-      alert('Please select an art form');
-      return;
-    }
-
-    if (!confirm(`Generate AI story for ${selectedArtForm}? This may take 1-2 minutes.`)) {
+  const handleStorySubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!storyForm.artForm || !storyForm.title || !storyForm.storybookLink) {
+      alert('Please fill all required fields');
       return;
     }
 
     try {
-      setGeneratingStory(true);
-      await generateStory(selectedArtForm, userInfo.token);
-      alert('Story generated successfully!');
-      setSelectedArtForm('');
+      if (editingStory) {
+        await updateArtStory(editingStory._id, storyForm, userInfo.token);
+        alert('Art story updated successfully!');
+      } else {
+        await createArtStory(storyForm, userInfo.token);
+        alert('Art story created successfully!');
+      }
+      
+      setShowStoryModal(false);
+      setEditingStory(null);
+      setStoryForm({ artForm: '', title: '', storybookLink: '', description: '' });
       fetchStories();
     } catch (error) {
       alert(error.message);
-    } finally {
-      setGeneratingStory(false);
     }
+  };
+
+  const handleEditStory = (story) => {
+    setEditingStory(story);
+    setStoryForm({
+      artForm: story.artForm,
+      title: story.title,
+      storybookLink: story.storybookLink,
+      description: story.description || '',
+    });
+    setShowStoryModal(true);
   };
 
   const handleDeleteStory = async (storyId) => {
@@ -358,47 +378,34 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Generate Art Stories Section */}
+        {/* Art Stories Management */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Generate Art Stories (AI)</h2>
-          
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select Art Form
-            </label>
-            <select
-              value={selectedArtForm}
-              onChange={(e) => setSelectedArtForm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              disabled={generatingStory}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">Art Stories & Videos</h2>
+            <button
+              onClick={() => setShowStoryModal(true)}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
             >
-              <option value="">Choose an art form...</option>
-              {artForms.map((art) => (
-                <option key={art} value={art}>{art}</option>
-              ))}
-            </select>
+              Add New Story
+            </button>
           </div>
 
-          <button
-            onClick={handleGenerateStory}
-            disabled={generatingStory || !selectedArtForm}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {generatingStory ? 'Generating Story... (1-2 min)' : 'Generate Story with AI'}
-          </button>
-
           {/* Existing Stories */}
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              Existing Stories ({stories.length})
-            </h3>
-            <div className="space-y-2">
-              {stories.map((story) => (
-                <div key={story._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">{story.title}</p>
-                    <p className="text-sm text-gray-600">{story.artForm}</p>
-                  </div>
+          <div className="space-y-3">
+            {stories.map((story) => (
+              <div key={story._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900">{story.title}</p>
+                  <p className="text-sm text-gray-600">{story.artForm}</p>
+                  <p className="text-xs text-gray-500 mt-1">{story.storybookLink}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEditStory(story)}
+                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm"
+                  >
+                    Edit
+                  </button>
                   <button
                     onClick={() => handleDeleteStory(story._id)}
                     className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm"
@@ -406,63 +413,108 @@ const AdminDashboard = () => {
                     Delete
                   </button>
                 </div>
-              ))}
-              {stories.length === 0 && (
-                <p className="text-gray-500 text-sm">No stories generated yet</p>
-              )}
-            </div>
+              </div>
+            ))}
+            {stories.length === 0 && (
+              <p className="text-gray-500 text-sm text-center py-4">No stories added yet</p>
+            )}
           </div>
         </div>
-      </main>
 
-      {/* Action Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              {modalAction === 'verify' && 'Verify Artisan'}
-              {modalAction === 'fraud' && 'Mark as Fraud'}
-              {modalAction === 'reject' && 'Reject Artisan'}
-            </h3>
-            
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">Artisan: <span className="font-medium">{selectedArtisan?.user.name}</span></p>
+        {/* Story Modal */}
+        {showStoryModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
+                {editingStory ? 'Edit Art Story' : 'Add New Art Story'}
+              </h3>
               
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Notes {(modalAction === 'fraud' || modalAction === 'reject') && <span className="text-red-500">*</span>}
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows="4"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder={`Enter ${modalAction} notes...`}
-              />
-            </div>
+              <form onSubmit={handleStorySubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Art Form <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={storyForm.artForm}
+                    onChange={(e) => setStoryForm({ ...storyForm, artForm: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    required
+                  >
+                    <option value="">-- Select Art Form --</option>
+                    {artForms.map((art) => (
+                      <option key={art} value={art}>{art}</option>
+                    ))}
+                  </select>
+                </div>
 
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={closeModal}
-                disabled={actionLoading}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAction}
-                disabled={actionLoading}
-                className={`px-4 py-2 rounded-lg text-white transition disabled:opacity-50 ${
-                  modalAction === 'verify' ? 'bg-green-600 hover:bg-green-700' :
-                  modalAction === 'fraud' ? 'bg-red-600 hover:bg-red-700' :
-                  'bg-gray-600 hover:bg-gray-700'
-                }`}
-              >
-                {actionLoading ? 'Processing...' : 'Confirm'}
-              </button>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={storyForm.title}
+                    onChange={(e) => setStoryForm({ ...storyForm, title: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="e.g., The Art of Indian Pottery"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Storybook Link (Gemini AI Storybook) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={storyForm.storybookLink}
+                    onChange={(e) => setStoryForm({ ...storyForm, storybookLink: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="https://gemini.google.com/share/..."
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Paste Gemini AI Storybook share link (will open in new window for users)
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={storyForm.description}
+                    onChange={(e) => setStoryForm({ ...storyForm, description: e.target.value })}
+                    rows="4"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Brief description about this art form..."
+                  />
+                </div>
+
+                <div className="flex gap-3 justify-end pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowStoryModal(false);
+                      setEditingStory(null);
+                      setStoryForm({ artForm: '', title: '', storybookLink: '', description: '' });
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                  >
+                    {editingStory ? 'Update Story' : 'Create Story'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </main>
     </div>
   );
 };
