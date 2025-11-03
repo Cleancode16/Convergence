@@ -31,6 +31,11 @@ import NGOSponsors from './pages/NGOSponsors';
 import Workshops from './pages/Workshops';
 import WorkshopDetails from './pages/WorkshopDetails';
 import CreateWorkshop from './pages/CreateWorkshop';
+import NGOsList from './pages/NGOsList';
+import NGODetails from './pages/NGODetails';
+import NGODonations from './pages/NGODonations';
+import MyDonations from './pages/MyDonations';
+import UserProfile from './pages/UserProfile';
 
 function App() {
   return (
@@ -252,6 +257,23 @@ function App() {
           <Route path="/workshops" element={<Workshops />} />
           <Route path="/workshop/:id" element={<WorkshopDetails />} />
           <Route path="/create-workshop" element={<CreateWorkshop />} />
+          <Route path="/ngos" element={<NGOsList />} />
+          <Route path="/ngo/:id" element={<NGODetails />} />
+          <Route path="/ngo-donations" element={
+            <ProtectedRoute allowedRoles={['ngo']}>
+              <NGODonations />
+            </ProtectedRoute>
+          } />
+          <Route path="/my-donations" element={
+            <ProtectedRoute allowedRoles={['user', 'artisan', 'ngo']}>
+              <MyDonations />
+            </ProtectedRoute>
+          } />
+          <Route path="/user-profile" element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <UserProfile />
+            </ProtectedRoute>
+          } />
         </Routes>
       </Router>
     </Provider>

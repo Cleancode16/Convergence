@@ -5,7 +5,7 @@ const transactionSchema = new mongoose.Schema(
     order: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Order',
-      required: true,
+      required: false, // Make it optional for donations
     },
     from: {
       type: mongoose.Schema.Types.ObjectId,
@@ -20,21 +20,31 @@ const transactionSchema = new mongoose.Schema(
     amount: {
       type: Number,
       required: true,
-      min: [0, 'Amount cannot be negative'],
+      min: 0,
     },
     type: {
       type: String,
-      enum: ['purchase', 'refund'],
-      default: 'purchase',
+      enum: [
+        'purchase',
+        'refund',
+        'withdrawal',
+        'donation',
+        'workshop_payment',
+      ], // Add donation and workshop_payment
+      required: true,
     },
     status: {
       type: String,
-      enum: ['pending', 'completed', 'failed'],
-      default: 'completed',
+      enum: ['pending', 'completed', 'failed', 'cancelled'],
+      default: 'pending',
     },
     description: {
       type: String,
-      trim: true,
+    },
+    // Add optional reference for donations
+    donation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Donation',
     },
   },
   {
@@ -45,6 +55,6 @@ const transactionSchema = new mongoose.Schema(
 // Index for faster queries
 transactionSchema.index({ from: 1, createdAt: -1 });
 transactionSchema.index({ to: 1, createdAt: -1 });
-transactionSchema.index({ order: 1 });
+transactionSchema.index({ type: 1, status: 1 });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

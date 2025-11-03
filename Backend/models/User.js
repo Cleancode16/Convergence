@@ -66,6 +66,39 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Product',
     }],
+    // Add profile information
+    phoneNumber: {
+      type: String,
+      match: [/^[0-9]{10}$/, 'Please provide a valid 10-digit phone number'],
+    },
+    address: {
+      street: {
+        type: String,
+        trim: true,
+      },
+      city: {
+        type: String,
+        trim: true,
+      },
+      state: {
+        type: String,
+        trim: true,
+      },
+      pincode: {
+        type: String,
+        match: [/^[0-9]{6}$/, 'Please provide a valid 6-digit pincode'],
+      },
+      country: {
+        type: String,
+        default: 'India',
+      },
+    },
+    profileImage: {
+      type: String,
+    },
+    dateOfBirth: {
+      type: Date,
+    },
   },
   {
     timestamps: true,

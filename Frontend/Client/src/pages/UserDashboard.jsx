@@ -1,19 +1,23 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../redux/actions/authActions';
-import { ShoppingBag, Heart, Package, CreditCard, User, LogOut, Users, BookOpen, Calendar } from 'lucide-react';
+import { ShoppingBag, Heart, Package, CreditCard, User, LogOut, Users, BookOpen, Calendar, HandHeart, UserCircle } from 'lucide-react';
 import { getFavoriteProducts } from '../services/productService';
+import { getMyDonations } from '../services/donationService'; // Add this import
 import { useEffect, useState } from 'react';
+import Chatbot from '../components/Chatbot';
 
 const UserDashboard = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [wishlist, setWishlist] = useState([]);
+  const [donationStats, setDonationStats] = useState({ count: 0, total: 0 }); // Add this state
 
   useEffect(() => {
     if (userInfo) {
       fetchWishlist();
+      fetchDonationStats(); // Add this
     }
   }, [userInfo]);
 
@@ -23,6 +27,18 @@ const UserDashboard = () => {
       setWishlist(data.data || []);
     } catch (error) {
       console.error('Error fetching wishlist:', error);
+    }
+  };
+
+  const fetchDonationStats = async () => {
+    try {
+      const data = await getMyDonations(userInfo.token);
+      setDonationStats({
+        count: data.count || 0,
+        total: data.totalDonated || 0,
+      });
+    } catch (error) {
+      console.error('Error fetching donation stats:', error);
     }
   };
 
@@ -56,8 +72,8 @@ const UserDashboard = () => {
               <p className="text-lg font-medium text-gray-900">{userInfo?.email}</p>
             </div>
             <div className="bg-green-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Role</p>
-              <p className="text-lg font-medium text-gray-900 capitalize">{userInfo?.role}</p>
+              <p className="text-sm text-gray-600">Total Donations</p>
+              <p className="text-lg font-medium text-gray-900">{donationStats.count} (₹{donationStats.total.toLocaleString()})</p>
             </div>
           </div>
         </div>
@@ -124,6 +140,42 @@ const UserDashboard = () => {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">My Orders</h3>
             <p className="text-gray-600 text-sm">Track your purchases</p>
+          </div>
+
+          {/* Add NGOs Card */}
+          <div
+            onClick={() => navigate('/ngos')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4">
+              <HandHeart className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Support NGOs</h3>
+            <p className="text-gray-600 text-sm">Donate to causes you care about</p>
+          </div>
+
+          {/* Add My Donations Card */}
+          <div
+            onClick={() => navigate('/my-donations')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-pink-100 rounded-lg mb-4">
+              <Heart className="w-6 h-6 text-pink-600" fill="currentColor" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">My Donations</h3>
+            <p className="text-gray-600 text-sm">View your donation history</p>
+          </div>
+
+          {/* Add My Profile Card */}
+          <div
+            onClick={() => navigate('/user-profile')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-lg mb-4">
+              <UserCircle className="w-6 h-6 text-indigo-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">My Profile</h3>
+            <p className="text-gray-600 text-sm">Manage your personal information</p>
           </div>
         </div>
 
@@ -226,6 +278,9 @@ const UserDashboard = () => {
           )}
         </div>
       </main>
+
+      {/* Add Chatbot */}
+      <Chatbot />
     </div>
   );
 };

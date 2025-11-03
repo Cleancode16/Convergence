@@ -8,6 +8,10 @@ const ngoProfileSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    organizationName: {
+      type: String,
+      trim: true,
+    },
     ngoType: {
       type: String,
       enum: ['trust', 'society', 'section_8_company', 'others'],
@@ -52,10 +56,18 @@ const ngoProfileSchema = new mongoose.Schema(
         message: 'Please select at least one art domain',
       },
     },
+    mission: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Mission cannot exceed 500 characters'],
+    },
     description: {
       type: String,
       maxlength: [1000, 'Description cannot exceed 1000 characters'],
       trim: true,
+    },
+    focusAreas: {
+      type: [String],
     },
     yearEstablished: {
       type: Number,
@@ -79,6 +91,16 @@ const ngoProfileSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    totalFundsRaised: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    donorsCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   {
     timestamps: true,
@@ -99,4 +121,7 @@ ngoProfileSchema.pre('save', function (next) {
   next();
 });
 
-module.exports = mongoose.model('NgoProfile', ngoProfileSchema);
+// Check if model already exists before creating it - IMPORTANT!
+const NGOProfile = mongoose.models.NGOProfile || mongoose.model('NGOProfile', ngoProfileSchema);
+
+module.exports = NGOProfile;
