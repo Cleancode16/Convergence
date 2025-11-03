@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle, Users, Wallet, FileText } from 'lucide-react';
+import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle, Users, Wallet, FileText, Award } from 'lucide-react';
 import { logout } from '../redux/actions/authActions';
 import { getProfileStatus, getProfile } from '../services/artisanService';
 import { getBalance } from '../services/walletService';
@@ -291,6 +291,20 @@ const ArtisanDashboard = () => {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">My Artist Post</h3>
             <p className="text-gray-600 text-sm">Share your story & arts</p>
+          </div>
+
+          <div 
+            onClick={() => navigate('/schemes')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer border-2 border-amber-200"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-amber-100 to-orange-100 rounded-lg mb-4">
+              <Award className="w-6 h-6 text-amber-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              Government Schemes
+              <span className="text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full">AI</span>
+            </h3>
+            <p className="text-gray-600 text-sm">Find schemes you're eligible for</p>
           </div>
 
           <div 
