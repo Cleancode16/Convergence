@@ -12,6 +12,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import ArtisanDashboard from './pages/ArtisanDashboard';
 import NgoDashboard from './pages/NgoDashboard';
 import ArtisanProfileSetup from './pages/ArtisanProfileSetup';
+import NgoProfileSetup from './pages/NgoProfileSetup';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -66,6 +67,15 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['ngo']}>
                 <NgoDashboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/ngo-profile-setup"
+            element={
+              <ProtectedRoute allowedRoles={['ngo']}>
+                <NgoProfileSetup />
               </ProtectedRoute>
             }
           />

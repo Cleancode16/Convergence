@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const artisanProfileRoutes = require('./routes/artisanProfileRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const ngoProfileRoutes = require('./routes/ngoProfileRoutes');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/artisan', artisanProfileRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/ngo', ngoProfileRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

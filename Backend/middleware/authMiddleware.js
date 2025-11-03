@@ -55,4 +55,13 @@ const adminOnly = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = { protect, artisanOnly, adminOnly };
+const ngoOnly = asyncHandler(async (req, res, next) => {
+  if (req.user && req.user.role === 'ngo') {
+    next();
+  } else {
+    res.status(403);
+    throw new Error('Access denied. NGOs only');
+  }
+});
+
+module.exports = { protect, artisanOnly, adminOnly, ngoOnly };
