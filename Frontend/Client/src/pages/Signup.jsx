@@ -1,0 +1,143 @@
+import { useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, Link } from 'react-router-dom';
+import { signupAction, clearError } from '../redux/actions/authActions';
+import { useEffect } from 'react';
+
+const Signup = () => {
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, error, userInfo } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (userInfo) {
+      navigateToDashboard(userInfo.role);
+    }
+    return () => dispatch(clearError());
+  }, [userInfo, navigate, dispatch]);
+
+  const navigateToDashboard = (role) => {
+    const dashboardRoutes = {
+      user: '/user-dashboard',
+      admin: '/admin-dashboard',
+      artisan: '/artisan-dashboard',
+      ngo: '/ngo-dashboard',
+    };
+    navigate(dashboardRoutes[role] || '/');
+  };
+
+  const onSubmit = async (data) => {
+    try {
+      const userData = await dispatch(signupAction(data.name, data.email, data.password, data.role));
+      navigateToDashboard(userData.role);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-extrabold text-gray-900">Create Account</h2>
+          <p className="mt-2 text-sm text-gray-600">Join CraftConnect today</p>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              Full Name
+            </label>
+            <input
+              id="name"
+              type="text"
+              {...register('name', { required: 'Name is required' })}
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              placeholder="John Doe"
+            />
+            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
+              {...register('email', {
+                required: 'Email is required',
+                pattern: {
+                  value: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+                  message: 'Invalid email address',
+                },
+              })}
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              placeholder="john@example.com"
+            />
+            {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              {...register('password', {
+                required: 'Password is required',
+                minLength: { value: 6, message: 'Password must be at least 6 characters' },
+              })}
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              placeholder="••••••••"
+            />
+            {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+              I am a
+            </label>
+            <select
+              id="role"
+              {...register('role', { required: 'Role is required' })}
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white"
+            >
+              <option value="">Select your role</option>
+              <option value="user">User</option>
+              <option value="artisan">Artisan</option>
+              <option value="ngo">NGO</option>
+              <option value="admin">Admin</option>
+            </select>
+            {errors.role && <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>}
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Creating Account...' : 'Sign Up'}
+          </button>
+        </form>
+
+        <p className="text-center text-sm text-gray-600">
+          Already have an account?{' '}
+          <Link to="/signin" className="font-medium text-indigo-600 hover:text-indigo-500">
+            Sign in
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default Signup;
