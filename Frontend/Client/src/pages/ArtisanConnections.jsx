@@ -1,8 +1,9 @@
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Building2, Mail, Phone, Globe, CheckCircle, XCircle, Clock, MapPin } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Phone, Globe, CheckCircle, XCircle, Clock, MapPin, MessageCircle } from 'lucide-react';
 import { getConnectionRequests, acceptConnectionRequest, rejectConnectionRequest, getConnectedNgos } from '../services/artisanService';
+import ChatModal from '../components/ChatModal';
 
 const ArtisanConnections = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -13,6 +14,8 @@ const ArtisanConnections = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('pending');
   const [processingId, setProcessingId] = useState(null);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [selectedConnection, setSelectedConnection] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -69,6 +72,16 @@ const ArtisanConnections = () => {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const openChat = (connection) => {
+    setSelectedConnection(connection);
+    setShowChatModal(true);
+  };
+
+  const closeChat = () => {
+    setShowChatModal(false);
+    setSelectedConnection(null);
   };
 
   return (
@@ -315,8 +328,15 @@ const ArtisanConnections = () => {
                     </p>
                   )}
 
-                  <div className="pt-3 border-t border-gray-200">
+                  <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
                     <p className="text-xs text-gray-500">Connected on {formatDate(connection.updatedAt)}</p>
+                    <button
+                      onClick={() => openChat(connection)}
+                      className="flex items-center gap-1 px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition text-sm"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Chat
+                    </button>
                   </div>
                 </div>
               ))}
@@ -324,6 +344,11 @@ const ArtisanConnections = () => {
           )
         )}
       </main>
+
+      {/* Chat Modal */}
+      {showChatModal && selectedConnection && (
+        <ChatModal connection={selectedConnection} onClose={closeChat} />
+      )}
     </div>
   );
 };
