@@ -2,8 +2,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../redux/actions/authActions';
 import { ShoppingBag, Heart, Package, CreditCard, User, LogOut, Users, BookOpen, Calendar, HandHeart, UserCircle } from 'lucide-react';
-import { getFavoriteProducts } from '../services/productService';
-import { getMyDonations } from '../services/donationService'; // Add this import
+import { getMyDonations } from '../services/donationService';
 import { useEffect, useState } from 'react';
 import Chatbot from '../components/Chatbot';
 
@@ -11,24 +10,13 @@ const UserDashboard = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [wishlist, setWishlist] = useState([]);
-  const [donationStats, setDonationStats] = useState({ count: 0, total: 0 }); // Add this state
+  const [donationStats, setDonationStats] = useState({ count: 0, total: 0 });
 
   useEffect(() => {
     if (userInfo) {
-      fetchWishlist();
-      fetchDonationStats(); // Add this
+      fetchDonationStats();
     }
   }, [userInfo]);
-
-  const fetchWishlist = async () => {
-    try {
-      const data = await getFavoriteProducts(userInfo.token);
-      setWishlist(data.data || []);
-    } catch (error) {
-      console.error('Error fetching wishlist:', error);
-    }
-  };
 
   const fetchDonationStats = async () => {
     try {
@@ -123,15 +111,7 @@ const UserDashboard = () => {
             <p className="text-gray-600 text-sm">Join hands-on art workshops</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
-            <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-lg mb-4">
-              <Heart className="w-6 h-6 text-red-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Wishlist</h3>
-            <p className="text-gray-600 text-sm">Your favorite items</p>
-          </div>
-
-          <div 
+          <div
             onClick={() => navigate('/my-orders')}
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
           >
@@ -177,105 +157,6 @@ const UserDashboard = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">My Profile</h3>
             <p className="text-gray-600 text-sm">Manage your personal information</p>
           </div>
-        </div>
-
-        {/* Wishlist Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-              <Heart className="w-5 h-5 text-red-500" fill="currentColor" />
-              My Wishlist
-            </h2>
-            <button
-              onClick={() => navigate('/marketplace')}
-              className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-            >
-              Browse Products
-            </button>
-          </div>
-
-          {wishlist.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <Heart className="w-16 h-16 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500 mb-4">Your wishlist is empty</p>
-              <button
-                onClick={() => navigate('/marketplace')}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-              >
-                Explore Products
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {wishlist.map((product) => (
-                <div
-                  key={product._id}
-                  className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition cursor-pointer"
-                >
-                  {/* Product Image */}
-                  <div 
-                    className="relative h-48 overflow-hidden bg-gray-100"
-                    onClick={() => navigate(`/product/${product._id}`)}
-                  >
-                    {product.images && product.images.length > 0 ? (
-                      <img
-                        src={product.images[0].url}
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-gray-400">No Image</span>
-                      </div>
-                    )}
-                    
-                    {/* Wishlist Heart Badge */}
-                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow">
-                      <Heart className="w-4 h-4 text-red-500" fill="currentColor" />
-                    </div>
-                  </div>
-
-                  {/* Product Details */}
-                  <div className="p-4">
-                    <div className="mb-2">
-                      <span className="text-xs text-indigo-600 font-medium bg-indigo-50 px-2 py-1 rounded">
-                        {product.category}
-                      </span>
-                    </div>
-                    <h3 
-                      className="font-semibold text-gray-900 mb-1 line-clamp-1 cursor-pointer hover:text-indigo-600"
-                      onClick={() => navigate(`/product/${product._id}`)}
-                    >
-                      {product.name}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                      {product.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-indigo-600">
-                        ₹{product.price}
-                      </span>
-                      {product.stock > 0 ? (
-                        <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
-                          In Stock
-                        </span>
-                      ) : (
-                        <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
-                          Out of Stock
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => navigate(`/product/${product._id}`)}
-                      className="w-full mt-3 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition"
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </main>
 

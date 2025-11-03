@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Users, IndianRupee, FileText, BookOpen, Calendar, TrendingUp, Settings, LogOut, Building2, Wallet } from 'lucide-react';
+import { Users, Wallet, FileText, BookOpen, Calendar, TrendingUp, Settings, LogOut, Building2, IndianRupee } from 'lucide-react';
 import { logout } from '../redux/actions/authActions';
 import { getProfileStatus } from '../services/ngoService';
 import { getNGODonations } from '../services/donationService';
@@ -150,47 +150,6 @@ const NgoDashboard = () => {
             <p className="text-gray-600 text-sm">Find and connect with artisans</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
-            <div className="flex items-center justify-center w-12 h-12 bg-teal-100 rounded-lg mb-4">
-              <FileText className="w-6 h-6 text-teal-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">New Program</h3>
-            <p className="text-gray-600 text-sm">Create support program</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
-            <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4">
-              <Wallet className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Fundraising</h3>
-            <p className="text-gray-600 text-sm">Manage campaigns</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
-            <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4">
-              <TrendingUp className="w-6 h-6 text-purple-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Reports</h3>
-            <p className="text-gray-600 text-sm">Impact assessments</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
-            <div className="flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-lg mb-4">
-              <BookOpen className="w-6 h-6 text-yellow-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Training</h3>
-            <p className="text-gray-600 text-sm">Skill development programs</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
-            <div className="flex items-center justify-center w-12 h-12 bg-pink-100 rounded-lg mb-4">
-              <Calendar className="w-6 h-6 text-pink-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Events</h3>
-            <p className="text-gray-600 text-sm">Organize workshops</p>
-          </div>
-
-          {/* Add this new card in the dashboard grid */}
           <div
             onClick={() => navigate('/ngo-sponsors')}
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
@@ -200,6 +159,17 @@ const NgoDashboard = () => {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Corporate Sponsors</h3>
             <p className="text-gray-600 text-sm">Find CSR funding opportunities</p>
+          </div>
+
+          <div
+            onClick={() => navigate('/ngo-reports')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-lg mb-4">
+              <FileText className="w-6 h-6 text-indigo-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">AI Reports</h3>
+            <p className="text-gray-600 text-sm">Generate impact reports</p>
           </div>
         </div>
 

@@ -12,9 +12,10 @@ const { protect, artisanOnly } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
+// IMPORTANT: /favorites MUST come BEFORE /:id
+router.get('/favorites', protect, getFavoriteProducts);
 router.get('/', getProducts);
 router.post('/', protect, artisanOnly, createProduct);
-router.get('/favorites', protect, getFavoriteProducts); // Must come BEFORE /:id
 router.get('/:id', getProduct);
 router.put('/:id', protect, artisanOnly, updateProduct);
 router.delete('/:id', protect, artisanOnly, deleteProduct);

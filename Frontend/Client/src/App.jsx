@@ -36,6 +36,7 @@ import NGODetails from './pages/NGODetails';
 import NGODonations from './pages/NGODonations';
 import MyDonations from './pages/MyDonations';
 import UserProfile from './pages/UserProfile';
+import NGOReports from './pages/NGOReports';
 
 function App() {
   return (
@@ -272,6 +273,11 @@ function App() {
           <Route path="/user-profile" element={
             <ProtectedRoute allowedRoles={['user']}>
               <UserProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/ngo-reports" element={
+            <ProtectedRoute allowedRoles={['ngo']}>
+              <NGOReports />
             </ProtectedRoute>
           } />
         </Routes>

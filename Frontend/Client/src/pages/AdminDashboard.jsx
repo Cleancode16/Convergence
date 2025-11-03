@@ -319,59 +319,70 @@ const AdminDashboard = () => {
                     </td>
                   </tr>
                 ) : (
-                  artisans.map((artisan) => (
-                    <tr key={artisan._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{artisan.user.name}</div>
-                          <div className="text-sm text-gray-500">{artisan.user.email}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 capitalize">
-                          {artisan.artType === 'others' ? artisan.otherArtType : artisan.artType.replace(/_/g, ' ')}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{artisan.phoneNumber}</div>
-                        <div className="text-sm text-gray-500">Aadhar: {artisan.aadharNumber}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(artisan.verificationStatus)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <div className="flex gap-2">
-                          {artisan.verificationStatus === 'pending' && (
-                            <>
-                              <button
-                                onClick={() => openModal(artisan, 'verify')}
-                                className="text-green-600 hover:text-green-900 font-medium"
-                              >
-                                Verify
-                              </button>
-                              <button
-                                onClick={() => openModal(artisan, 'fraud')}
-                                className="text-red-600 hover:text-red-900 font-medium"
-                              >
-                                Fraud
-                              </button>
-                              <button
-                                onClick={() => openModal(artisan, 'reject')}
-                                className="text-gray-600 hover:text-gray-900 font-medium"
-                              >
-                                Reject
-                              </button>
-                            </>
-                          )}
-                          {artisan.verificationStatus !== 'pending' && (
-                            <span className="text-gray-500 italic">
-                              {artisan.verifiedBy?.name && `By ${artisan.verifiedBy.name}`}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                  artisans.map((artisan) => {
+                    // Add null check for artisan.user
+                    if (!artisan.user) {
+                      return null;
+                    }
+
+                    return (
+                      <tr key={artisan._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {artisan.user?.name || 'Unknown'}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {artisan.user?.email || 'N/A'}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 capitalize">
+                            {artisan.artType === 'others' ? artisan.otherArtType : artisan.artType.replace(/_/g, ' ')}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{artisan.phoneNumber}</div>
+                          <div className="text-sm text-gray-500">Aadhar: {artisan.aadharNumber}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getStatusBadge(artisan.verificationStatus)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <div className="flex gap-2">
+                            {artisan.verificationStatus === 'pending' && (
+                              <>
+                                <button
+                                  onClick={() => openModal(artisan, 'verify')}
+                                  className="text-green-600 hover:text-green-900 font-medium"
+                                >
+                                  Verify
+                                </button>
+                                <button
+                                  onClick={() => openModal(artisan, 'fraud')}
+                                  className="text-red-600 hover:text-red-900 font-medium"
+                                >
+                                  Fraud
+                                </button>
+                                <button
+                                  onClick={() => openModal(artisan, 'reject')}
+                                  className="text-gray-600 hover:text-gray-900 font-medium"
+                                >
+                                  Reject
+                                </button>
+                              </>
+                            )}
+                            {artisan.verificationStatus !== 'pending' && (
+                              <span className="text-gray-500 italic">
+                                {artisan.verifiedBy?.name ? `By ${artisan.verifiedBy.name}` : 'Processed'}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  }).filter(Boolean)
                 )}
               </tbody>
             </table>

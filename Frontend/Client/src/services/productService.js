@@ -63,58 +63,33 @@ export const toggleLike = async (id, token) => {
   }
 };
 
-export const uploadToCloudinary = async (file, cloudName, uploadPreset) => {
-  if (!cloudName || !uploadPreset) {
-    throw new Error('Cloudinary cloud name and upload preset are required');
-  }
-
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', uploadPreset);
-
+export const getFavoriteProducts = async (token) => {
   try {
-    const resourceType = file.type.startsWith('video') ? 'video' : 'image';
-    const url = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
-    
-    console.log('Uploading to:', url);
-    console.log('Resource type:', resourceType);
-    console.log('File size:', file.size);
-    
-    const response = await axios.post(url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      },
-      onUploadProgress: (progressEvent) => {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        console.log('Upload progress:', percentCompleted + '%');
-      }
-    });
-    
-    console.log('Upload successful:', response.data);
-    
-    return {
-      url: response.data.secure_url,
-      publicId: response.data.public_id,
-      type: resourceType,
-    };
+    const response = await axios.get(`${API_URL}/favorites`, getAuthHeader(token));
+    return response.data;
   } catch (error) {
-    console.error('Cloudinary upload error:', error.response?.data || error.message);
-    if (error.response?.data?.error?.message) {
-      throw new Error(error.response.data.error.message);
-    }
-    throw new Error('Failed to upload file to Cloudinary');
+    throw new Error(error.response?.data?.message || 'Failed to fetch favorite products');
   }
 };
 
-// Get user's favorite products
-export const getFavoriteProducts = async (token) => {
+// Cloudinary upload function
+export const uploadToCloudinary = async (file, cloudName, uploadPreset) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', uploadPreset);
+  
+  const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
+  const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
+
   try {
-    const response = await axios.get(
-      `${API_URL}/favorites`,
-      getAuthHeader(token)
-    );
-    return response.data;
+    const response = await axios.post(uploadUrl, formData);
+    return {
+      url: response.data.secure_url,
+      public_id: response.data.public_id,
+      type: resourceType,
+    };
   } catch (error) {
-    throw new Error(error.response?.data?.message || 'Failed to fetch favorites');
+    console.error('Cloudinary upload error:', error);
+    throw new Error(error.response?.data?.error?.message || 'Failed to upload to Cloudinary');
   }
 };

@@ -307,69 +307,76 @@ const BrowseArtisans = () => {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {currentArtisans.map((artisan) => (
-                          <tr key={artisan._id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center">
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <div className="text-sm font-medium text-gray-900">
-                                      {artisan.user.name}
+                        {currentArtisans.map((artisan) => {
+                          // Add null check for artisan.user
+                          if (!artisan.user) {
+                            return null;
+                          }
+
+                          return (
+                            <tr key={artisan._id} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <div className="text-sm font-medium text-gray-900">
+                                        {artisan.user?.name || 'Unknown'}
+                                      </div>
+                                      {artisan.isExpertVerified && (
+                                        <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-100" />
+                                      )}
                                     </div>
-                                    {artisan.isExpertVerified && (
-                                      <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-100" />
-                                    )}
+                                    <div className="text-sm text-gray-500">{artisan.user?.email || 'N/A'}</div>
                                   </div>
-                                  <div className="text-sm text-gray-500">{artisan.user.email}</div>
                                 </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">
-                                {formatArtType(artisan.artType, artisan.otherArtType)}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">
-                                {artisan.experience ? `${artisan.experience} years` : 'N/A'}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">
-                                {artisan.address?.city && artisan.address?.state
-                                  ? `${artisan.address.city}, ${artisan.address.state}`
-                                  : 'N/A'}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">{artisan.phoneNumber}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {artisan.verificationStatus === 'verified' ? (
-                                <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                  Verified
-                                </span>
-                              ) : artisan.verificationStatus === 'pending' ? (
-                                <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                  Pending
-                                </span>
-                              ) : (
-                                <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                  {artisan.verificationStatus}
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                              <button
-                                onClick={() => openConnectionModal(artisan)}
-                                className="inline-flex items-center gap-1 px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition"
-                              >
-                                <Send className="w-3 h-3" />
-                                Connect
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {formatArtType(artisan.artType, artisan.otherArtType)}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {artisan.experience ? `${artisan.experience} years` : 'N/A'}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {artisan.address?.city && artisan.address?.state
+                                    ? `${artisan.address.city}, ${artisan.address.state}`
+                                    : 'N/A'}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">{artisan.phoneNumber || 'N/A'}</div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                {artisan.verificationStatus === 'verified' ? (
+                                  <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    Verified
+                                  </span>
+                                ) : artisan.verificationStatus === 'pending' ? (
+                                  <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Pending
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    {artisan.verificationStatus}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                <button
+                                  onClick={() => openConnectionModal(artisan)}
+                                  className="inline-flex items-center gap-1 px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition"
+                                >
+                                  <Send className="w-3 h-3" />
+                                  Connect
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        }).filter(Boolean)}
                       </tbody>
                     </table>
                   </div>
@@ -514,14 +521,14 @@ const BrowseArtisans = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Connect with {selectedArtisan.user.name}
+              Connect with {selectedArtisan.user?.name || 'Artisan'}
             </h3>
 
             <div className="mb-4 p-4 bg-gray-50 rounded-lg">
               <div className="text-sm text-gray-600 space-y-1">
                 <p><strong>Art Type:</strong> {formatArtType(selectedArtisan.artType, selectedArtisan.otherArtType)}</p>
                 <p><strong>Experience:</strong> {selectedArtisan.experience ? `${selectedArtisan.experience} years` : 'N/A'}</p>
-                <p><strong>Location:</strong> {selectedArtisan.address?.city}, {selectedArtisan.address?.state}</p>
+                <p><strong>Location:</strong> {selectedArtisan.address?.city || 'N/A'}, {selectedArtisan.address?.state || 'N/A'}</p>
               </div>
             </div>
 

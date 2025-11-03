@@ -84,6 +84,11 @@ const ExploreArtists = () => {
       return;
     }
 
+    if (!artistId) {
+      alert('Artist information not available');
+      return;
+    }
+
     try {
       const data = await toggleFavorite(artistId, userInfo.token);
       if (data.isFavorite) {
@@ -196,100 +201,108 @@ const ExploreArtists = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => (
-              <div
-                key={post._id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition group"
-              >
-                {/* Cover Image */}
-                <div className="relative h-48 bg-gradient-to-r from-teal-400 to-blue-500">
-                  {post.media && post.media.length > 0 && post.media[0].type === 'image' ? (
-                    <img
-                      src={post.media[0].url}
-                      alt={post.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-white text-4xl font-bold">
-                        {post.artisan?.name?.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {/* Favorite Button */}
-                  <button
-                    onClick={() => handleFavorite(post.artisan._id)}
-                    className={`absolute top-3 right-3 p-2 rounded-full transition ${
-                      favorites.includes(post.artisan._id)
-                        ? 'bg-yellow-500 text-white'
-                        : 'bg-white text-gray-600 hover:bg-yellow-500 hover:text-white'
-                    }`}
-                  >
-                    <Star className="w-5 h-5" fill={favorites.includes(post.artisan._id) ? 'currentColor' : 'none'} />
-                  </button>
-                </div>
+            {posts.map((post) => {
+              // Add null checks
+              if (!post.artisan) {
+                return null; // Skip posts with no artisan data
+              }
 
-                {/* Content */}
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">
-                    {post.title}
-                  </h3>
-                  
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm bg-teal-100 text-teal-800 px-3 py-1 rounded-full">
-                      {post.specialization}
-                    </span>
-                  </div>
-
-                  {post.experience && (
-                    <p className="text-sm text-gray-600 mb-3">
-                      <strong>Experience:</strong> {post.experience}
-                    </p>
-                  )}
-
-                  <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-                    {post.description}
-                  </p>
-
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                    <div className="flex items-center gap-4">
-                      <span className="flex items-center gap-1">
-                        <Heart className="w-4 h-4" />
-                        {post.likesCount || 0}
-                      </span>
-                      {post.media && post.media.length > 0 && (
-                        <span>{post.media.length} photos</span>
-                      )}
-                    </div>
-                    <span className="text-xs">By {post.artisan?.name}</span>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleLike(post._id)}
-                      className={`flex-1 py-2 px-4 rounded-lg border-2 transition flex items-center justify-center gap-2 ${
-                        post.likes?.includes(userInfo?._id)
-                          ? 'border-red-500 bg-red-500 text-white'
-                          : 'border-gray-300 text-gray-700 hover:border-red-500 hover:text-red-500'
-                      }`}
-                    >
-                      <Heart className="w-4 h-4" fill={post.likes?.includes(userInfo?._id) ? 'currentColor' : 'none'} />
-                      Like
-                    </button>
+              return (
+                <div
+                  key={post._id}
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition group"
+                >
+                  {/* Cover Image */}
+                  <div className="relative h-48 bg-gradient-to-r from-teal-400 to-blue-500">
+                    {post.media && post.media.length > 0 && post.media[0].type === 'image' ? (
+                      <img
+                        src={post.media[0].url}
+                        alt={post.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-white text-4xl font-bold">
+                          {post.artisan?.name?.charAt(0).toUpperCase() || '?'}
+                        </span>
+                      </div>
+                    )}
                     
+                    {/* Favorite Button */}
                     <button
-                      onClick={() => navigate(`/artist-post/${post._id}`)}
-                      className="flex-1 py-2 px-4 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition flex items-center justify-center gap-2"
+                      onClick={() => handleFavorite(post.artisan?._id)}
+                      disabled={!post.artisan?._id}
+                      className={`absolute top-3 right-3 p-2 rounded-full transition ${
+                        favorites.includes(post.artisan?._id)
+                          ? 'bg-yellow-500 text-white'
+                          : 'bg-white text-gray-600 hover:bg-yellow-500 hover:text-white'
+                      } ${!post.artisan?._id ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                      <Eye className="w-4 h-4" />
-                      View
+                      <Star className="w-5 h-5" fill={favorites.includes(post.artisan?._id) ? 'currentColor' : 'none'} />
                     </button>
                   </div>
+
+                  {/* Content */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">
+                      {post.title}
+                    </h3>
+                    
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-sm bg-teal-100 text-teal-800 px-3 py-1 rounded-full">
+                        {post.specialization}
+                      </span>
+                    </div>
+
+                    {post.experience && (
+                      <p className="text-sm text-gray-600 mb-3">
+                        <strong>Experience:</strong> {post.experience}
+                      </p>
+                    )}
+
+                    <p className="text-gray-700 text-sm mb-4 line-clamp-3">
+                      {post.description}
+                    </p>
+
+                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                      <div className="flex items-center gap-4">
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-4 h-4" />
+                          {post.likesCount || 0}
+                        </span>
+                        {post.media && post.media.length > 0 && (
+                          <span>{post.media.length} photos</span>
+                        )}
+                      </div>
+                      <span className="text-xs">By {post.artisan?.name || 'Unknown'}</span>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleLike(post._id)}
+                        className={`flex-1 py-2 px-4 rounded-lg border-2 transition flex items-center justify-center gap-2 ${
+                          post.likes?.includes(userInfo?._id)
+                            ? 'border-red-500 bg-red-500 text-white'
+                            : 'border-gray-300 text-gray-700 hover:border-red-500 hover:text-red-500'
+                        }`}
+                      >
+                        <Heart className="w-4 h-4" fill={post.likes?.includes(userInfo?._id) ? 'currentColor' : 'none'} />
+                        Like
+                      </button>
+                      
+                      <button
+                        onClick={() => navigate(`/artist-post/${post._id}`)}
+                        className="flex-1 py-2 px-4 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition flex items-center justify-center gap-2"
+                      >
+                        <Eye className="w-4 h-4" />
+                        View
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            }).filter(Boolean)}
           </div>
         )}
       </main>
