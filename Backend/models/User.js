@@ -31,6 +31,11 @@ const userSchema = new mongoose.Schema(
       default: 'user',
       required: [true, 'Please specify a role'],
     },
+    walletBalance: {
+      type: Number,
+      default: 0,
+      min: [0, 'Wallet balance cannot be negative'],
+    },
   },
   {
     timestamps: true,

@@ -16,6 +16,12 @@ import NgoProfileSetup from './pages/NgoProfileSetup';
 import ProtectedRoute from './components/ProtectedRoute';
 import BrowseArtisans from './pages/BrowseArtisans';
 import ArtisanConnections from './pages/ArtisanConnections';
+import CreateProduct from './pages/CreateProduct';
+import Marketplace from './pages/Marketplace';
+import ProductDetails from './pages/ProductDetails';
+import MyProducts from './pages/MyProducts';
+import MyOrders from './pages/MyOrders';
+import ArtisanOrders from './pages/ArtisanOrders';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -96,6 +102,60 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['artisan']}>
                 <ArtisanConnections />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/create-product"
+            element={
+              <ProtectedRoute allowedRoles={['artisan']}>
+                <CreateProduct />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/marketplace"
+            element={
+              <ProtectedRoute allowedRoles={['user', 'artisan', 'ngo']}>
+                <Marketplace />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/product/:id"
+            element={
+              <ProtectedRoute allowedRoles={['user', 'artisan', 'ngo']}>
+                <ProductDetails />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/my-products"
+            element={
+              <ProtectedRoute allowedRoles={['artisan']}>
+                <MyProducts />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/my-orders"
+            element={
+              <ProtectedRoute allowedRoles={['user', 'artisan', 'ngo']}>
+                <MyOrders />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/artisan-orders"
+            element={
+              <ProtectedRoute allowedRoles={['artisan']}>
+                <ArtisanOrders />
               </ProtectedRoute>
             }
           />

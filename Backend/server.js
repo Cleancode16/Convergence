@@ -9,6 +9,10 @@ const artisanProfileRoutes = require('./routes/artisanProfileRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const ngoProfileRoutes = require('./routes/ngoProfileRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const productRoutes = require('./routes/productRoutes');
+const commentRoutes = require('./routes/commentRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const walletRoutes = require('./routes/walletRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -34,6 +38,10 @@ app.use('/api/artisan', artisanProfileRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ngo', ngoProfileRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/wallet', walletRoutes);
 
 // Socket.IO
 const userSocketMap = new Map();

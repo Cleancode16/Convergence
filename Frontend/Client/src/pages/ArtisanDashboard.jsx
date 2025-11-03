@@ -1,9 +1,10 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle, Users } from 'lucide-react';
+import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle, Users, Wallet } from 'lucide-react';
 import { logout } from '../redux/actions/authActions';
 import { getProfileStatus, getProfile } from '../services/artisanService';
+import { getBalance } from '../services/walletService';
 import confetti from 'canvas-confetti';
 
 const ArtisanDashboard = () => {
@@ -13,6 +14,7 @@ const ArtisanDashboard = () => {
   const [profileComplete, setProfileComplete] = useState(true);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
+  const [walletBalance, setWalletBalance] = useState(0);
   const confettiTriggered = useRef(false);
 
   useEffect(() => {
@@ -40,6 +42,10 @@ const ArtisanDashboard = () => {
                 }
               }
             }
+
+            // Fetch wallet balance
+            const balanceData = await getBalance(userInfo.token);
+            setWalletBalance(balanceData.data.balance);
           }
         }
       } catch (error) {
@@ -246,7 +252,7 @@ const ArtisanDashboard = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-amber-50 p-4 rounded-lg">
               <p className="text-sm text-gray-600">Total Products</p>
               <p className="text-3xl font-bold text-amber-600">24</p>
@@ -259,11 +265,21 @@ const ArtisanDashboard = () => {
               <p className="text-sm text-gray-600">Pending Orders</p>
               <p className="text-3xl font-bold text-blue-600">7</p>
             </div>
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 flex items-center gap-1">
+                <Wallet className="w-4 h-4" />
+                Wallet Balance
+              </p>
+              <p className="text-3xl font-bold text-purple-600">₹{walletBalance.toLocaleString()}</p>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
+          <div 
+            onClick={() => navigate('/create-product')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
             <div className="flex items-center justify-center w-12 h-12 bg-amber-100 rounded-lg mb-4">
               <Package className="w-6 h-6 text-amber-600" />
             </div>
@@ -271,7 +287,10 @@ const ArtisanDashboard = () => {
             <p className="text-gray-600 text-sm">Create new product listing</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
+          <div 
+            onClick={() => navigate('/my-products')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
             <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4">
               <Package className="w-6 h-6 text-blue-600" />
             </div>
@@ -279,7 +298,10 @@ const ArtisanDashboard = () => {
             <p className="text-gray-600 text-sm">Manage your inventory</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
+          <div 
+            onClick={() => navigate('/artisan-orders')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
             <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4">
               <ShoppingCart className="w-6 h-6 text-green-600" />
             </div>
