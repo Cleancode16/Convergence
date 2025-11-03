@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Search, Filter, Heart, ShoppingCart, ArrowLeft } from 'lucide-react';
+import { Search, Filter, Heart, ShoppingCart, ArrowLeft, Sparkles, Star } from 'lucide-react';
 import { getProducts, toggleLike } from '../services/productService';
 import { getRecommendations } from '../services/recommendationService';
+import { motion } from 'framer-motion';
 
 const Marketplace = () => {
   const navigate = useNavigate();
@@ -14,6 +15,36 @@ const Marketplace = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [recommendations, setRecommendations] = useState([]);
+
+  // Animation Variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.4, ease: "easeOut" }
+    }
+  };
 
   const categories = [
     { value: 'all', label: 'All Categories' },
@@ -114,9 +145,9 @@ const Marketplace = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <nav className="bg-teal-600 shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      {/* Navbar */}
+      <nav className="bg-gradient-to-r from-teal-600 to-blue-600 shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -126,7 +157,10 @@ const Marketplace = () => {
               >
                 <ArrowLeft className="w-6 h-6" />
               </button>
-              <h1 className="text-2xl font-bold text-white">Marketplace</h1>
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-7 h-7 text-white" />
+                <h1 className="text-xl sm:text-2xl font-bold text-white">Marketplace</h1>
+              </div>
             </div>
           </div>
         </div>
@@ -134,27 +168,32 @@ const Marketplace = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={fadeInUp}
+          className="bg-white rounded-2xl shadow-xl p-6 mb-8"
+        >
           <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
             <div className="md:col-span-2 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search products..."
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition outline-none"
               />
             </div>
 
             {/* Category Filter */}
             <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white appearance-none"
+                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition bg-white outline-none appearance-none cursor-pointer"
               >
                 {categories.map((cat) => (
                   <option key={cat.value} value={cat.value}>
@@ -169,7 +208,7 @@ const Marketplace = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white appearance-none"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition bg-white outline-none appearance-none cursor-pointer"
               >
                 <option value="newest">Newest First</option>
                 <option value="price_low">Price: Low to High</option>
@@ -179,36 +218,54 @@ const Marketplace = () => {
             </div>
           </form>
 
-          <div className="mt-4 text-sm text-gray-600">
+          <div className="mt-4 text-sm text-gray-600 font-medium">
             Showing {products.length} products
           </div>
-        </div>
+        </motion.div>
 
         {/* Products Grid */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading products...</p>
+          <div className="text-center py-20">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="inline-block"
+            >
+              <div className="w-16 h-16 border-4 border-teal-600 border-t-transparent rounded-full"></div>
+            </motion.div>
+            <p className="mt-6 text-gray-600 text-lg font-medium">Loading products...</p>
           </div>
         ) : products.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <p className="text-gray-500 text-lg">No products found</p>
-          </div>
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={scaleIn}
+            className="bg-white rounded-2xl shadow-xl p-16 text-center"
+          >
+            <ShoppingCart className="w-20 h-20 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 text-xl font-semibold">No products found</p>
+            <p className="text-gray-400 text-sm mt-2">Try adjusting your search or filters</p>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+          >
             {products.map((product) => (
-              <div
+              <motion.div
                 key={product._id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition cursor-pointer group"
+                variants={scaleIn}
+                whileHover={{ y: -10, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden transition cursor-pointer border-2 border-transparent hover:border-teal-200"
               >
                 {/* Product Image */}
                 <div className="relative h-64 bg-gray-200 overflow-hidden">
                   {/* Strongly Recommended Badge */}
                   {isRecommended(product._id) && (
                     <div className="absolute top-2 left-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-full z-10 flex items-center gap-1 shadow-lg">
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
+                      <Star className="w-3 h-3" fill="currentColor" />
                       Recommended
                     </div>
                   )}
@@ -229,83 +286,85 @@ const Marketplace = () => {
                       />
                     )
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-300">
-                      <span className="text-gray-500">No image</span>
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
+                      <Sparkles className="w-12 h-12 text-gray-400" />
                     </div>
                   )}
 
                   {/* Like Button */}
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => handleLike(product._id)}
-                    className={`absolute top-2 right-2 p-2 rounded-full transition ${
+                    className={`absolute top-2 right-2 p-2.5 rounded-full shadow-lg transition ${
                       product.likes?.includes(userInfo?._id)
                         ? 'bg-red-500 text-white'
                         : 'bg-white text-gray-600 hover:bg-red-500 hover:text-white'
                     }`}
                   >
                     <Heart className="w-5 h-5" fill={product.likes?.includes(userInfo?._id) ? 'currentColor' : 'none'} />
-                  </button>
+                  </motion.button>
 
                   {/* Stock Badge */}
                   {product.stock === 0 && (
-                    <div className="absolute bottom-2 left-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                    <div className="absolute bottom-2 left-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md">
                       Out of Stock
                     </div>
                   )}
                 </div>
 
                 {/* Product Details */}
-                <div className="p-4" onClick={() => navigate(`/product/${product._id}`)}>
+                <div className="p-5" onClick={() => navigate(`/product/${product._id}`)}>
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 line-clamp-1 flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 line-clamp-1 flex-1">
                       {product.title}
                     </h3>
                   </div>
 
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed">
                     {product.description}
                   </p>
 
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs bg-teal-100 text-teal-800 px-2 py-1 rounded-full">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs bg-gradient-to-r from-teal-100 to-blue-100 text-teal-800 px-3 py-1 rounded-full font-semibold">
                       {formatCategory(product.category)}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 font-medium">
                       By {product.artisan?.name}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-4">
                     <div>
-                      <span className="text-2xl font-bold text-teal-600">
+                      <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
                         {formatPrice(product.price)}
                       </span>
-                      <p className="text-xs text-gray-500">{product.stock} in stock</p>
+                      <p className="text-xs text-gray-500 mt-1">{product.stock} in stock</p>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Heart className="w-4 h-4" />
-                      <span>{product.likesCount || 0}</span>
+                      <Heart className="w-4 h-4 text-red-500" />
+                      <span className="font-medium">{product.likesCount || 0}</span>
                     </div>
                   </div>
-                </div>
 
-                {/* Buy Button */}
-                <div className="px-4 pb-4">
-                  <button
+                  {/* Buy Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/product/${product._id}`);
                     }}
                     disabled={product.stock === 0}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-xl hover:from-teal-700 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-md"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     {product.stock === 0 ? 'Out of Stock' : 'View Details'}
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </main>
     </div>

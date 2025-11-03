@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { ArrowLeft, Heart, Star, Mail } from 'lucide-react';
+import { ArrowLeft, Heart, Star, Mail, Sparkles, User, Award } from 'lucide-react';
 import { getPost, toggleLike, toggleFavorite } from '../services/artistPostService';
+import { motion } from 'framer-motion';
 
 const ArtistPostDetails = () => {
   const { id } = useParams();
@@ -12,6 +13,43 @@ const ArtistPostDetails = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMedia, setSelectedMedia] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+
+  // Animation Variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const fadeInLeft = {
+    hidden: { opacity: 0, x: -30 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const fadeInRight = {
+    hidden: { opacity: 0, x: 30 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.4, ease: "easeOut" }
+    }
+  };
 
   useEffect(() => {
     fetchPost();
@@ -65,32 +103,50 @@ const ArtistPostDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="inline-block"
+        >
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full"></div>
+        </motion.div>
       </div>
     );
   }
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Post not found</p>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={scaleIn}
+          className="text-center"
+        >
+          <Sparkles className="w-20 h-20 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500 text-xl font-semibold">Post not found</p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-teal-600 shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      {/* Navbar */}
+      <nav className="bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 h-16">
+          <div className="flex items-center h-16">
             <button
               onClick={() => navigate(-1)}
               className="text-white hover:text-gray-200 transition"
             >
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-2xl font-bold text-white">Artist Profile</h1>
+            <div className="ml-4 flex items-center gap-3">
+              <Sparkles className="w-7 h-7 text-white" />
+              <h1 className="text-xl sm:text-2xl font-bold text-white">Artist Profile</h1>
+            </div>
           </div>
         </div>
       </nav>
@@ -98,10 +154,18 @@ const ArtistPostDetails = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Media Gallery */}
-          <div>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeInLeft}
+          >
             {post.media && post.media.length > 0 ? (
               <>
-                <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
+                <motion.div 
+                  className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-4"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
                   {post.media[selectedMedia].type === 'image' ? (
                     <img
                       src={post.media[selectedMedia].url}
@@ -115,17 +179,21 @@ const ArtistPostDetails = () => {
                       className="w-full h-96 object-cover"
                     />
                   )}
-                </div>
+                </motion.div>
 
                 {/* Thumbnails */}
                 {post.media.length > 1 && (
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-5 gap-3">
                     {post.media.map((media, index) => (
-                      <button
+                      <motion.button
                         key={index}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => setSelectedMedia(index)}
-                        className={`rounded-lg overflow-hidden border-2 ${
-                          selectedMedia === index ? 'border-teal-600' : 'border-gray-200'
+                        className={`rounded-xl overflow-hidden border-3 transition shadow-md ${
+                          selectedMedia === index 
+                            ? 'border-purple-600 ring-2 ring-purple-300' 
+                            : 'border-gray-200 hover:border-purple-300'
                         }`}
                       >
                         {media.type === 'image' ? (
@@ -135,95 +203,157 @@ const ArtistPostDetails = () => {
                             className="w-full h-16 object-cover"
                           />
                         ) : (
-                          <div className="w-full h-16 bg-gray-200 flex items-center justify-center">
-                            <span className="text-xs text-gray-500">Video</span>
+                          <div className="w-full h-16 bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
+                            <span className="text-xs text-purple-600 font-semibold">Video</span>
                           </div>
                         )}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 )}
               </>
             ) : (
-              <div className="bg-gradient-to-r from-teal-400 to-blue-500 rounded-lg shadow-md h-96 flex items-center justify-center">
-                <span className="text-white text-6xl font-bold">
+              <motion.div 
+                className="bg-gradient-to-r from-purple-400 to-indigo-500 rounded-2xl shadow-2xl h-96 flex items-center justify-center"
+                whileHover={{ scale: 1.02 }}
+              >
+                <span className="text-white text-6xl font-bold drop-shadow-lg">
                   {post.artisan?.name?.charAt(0).toUpperCase()}
                 </span>
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
 
           {/* Artist Info */}
-          <div>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeInRight}
+          >
+            <div className="bg-white rounded-2xl shadow-2xl p-8">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{post.title}</h1>
+              </motion.div>
               
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-sm bg-teal-100 text-teal-800 px-3 py-1 rounded-full">
+              <motion.div 
+                className="flex items-center gap-3 mb-6 flex-wrap"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <span className="text-sm bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 px-4 py-2 rounded-full font-semibold shadow-sm">
                   {post.specialization}
                 </span>
                 <div className="flex items-center gap-2 text-gray-600">
-                  <Heart className="w-4 h-4" />
-                  <span className="text-sm">{post.likesCount || 0} likes</span>
+                  <Heart className="w-5 h-5 text-red-500" />
+                  <span className="text-sm font-medium">{post.likesCount || 0} likes</span>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="mb-6">
-                <p className="text-gray-600 text-sm mb-2">
-                  <strong>Artist:</strong> {post.artisan?.name}
-                </p>
-                {post.experience && (
-                  <p className="text-gray-600 text-sm">
-                    <strong>Experience:</strong> {post.experience}
+              <motion.div 
+                className="mb-6 space-y-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <div className="flex items-center gap-2 text-gray-700">
+                  <User className="w-5 h-5 text-indigo-600" />
+                  <p className="font-semibold">
+                    Artist: <span className="font-normal">{post.artisan?.name}</span>
                   </p>
+                </div>
+                {post.experience && (
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Award className="w-5 h-5 text-purple-600" />
+                    <p className="font-semibold">
+                      Experience: <span className="font-normal">{post.experience}</span>
+                    </p>
+                  </div>
                 )}
-              </div>
+              </motion.div>
 
-              <div className="mb-6">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">About</h3>
-                <p className="text-gray-700 whitespace-pre-wrap">{post.description}</p>
-              </div>
+              <motion.div 
+                className="mb-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <h3 className="text-sm font-bold text-gray-500 uppercase mb-3 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-indigo-600" />
+                  About
+                </h3>
+                <div className="bg-gradient-to-br from-gray-50 to-purple-50 p-4 rounded-xl border-2 border-purple-100">
+                  <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{post.description}</p>
+                </div>
+              </motion.div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 mb-4">
-                <button
+              <motion.div 
+                className="flex gap-3 mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={handleLike}
-                  className={`flex-1 px-6 py-3 rounded-lg border-2 transition flex items-center justify-center gap-2 ${
+                  className={`flex-1 px-6 py-3 rounded-xl border-2 transition flex items-center justify-center gap-2 font-semibold shadow-md ${
                     post.likes?.includes(userInfo?._id)
                       ? 'border-red-500 bg-red-500 text-white'
-                      : 'border-gray-300 text-gray-700 hover:border-red-500 hover:text-red-500'
+                      : 'border-gray-300 text-gray-700 hover:border-red-500 hover:text-red-500 bg-white'
                   }`}
                 >
                   <Heart className="w-5 h-5" fill={post.likes?.includes(userInfo?._id) ? 'currentColor' : 'none'} />
                   Like
-                </button>
+                </motion.button>
 
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={handleFavorite}
-                  className={`flex-1 px-6 py-3 rounded-lg border-2 transition flex items-center justify-center gap-2 ${
+                  className={`flex-1 px-6 py-3 rounded-xl border-2 transition flex items-center justify-center gap-2 font-semibold shadow-md ${
                     isFavorite
                       ? 'border-yellow-500 bg-yellow-500 text-white'
-                      : 'border-gray-300 text-gray-700 hover:border-yellow-500 hover:text-yellow-500'
+                      : 'border-gray-300 text-gray-700 hover:border-yellow-500 hover:text-yellow-500 bg-white'
                   }`}
                 >
                   <Star className="w-5 h-5" fill={isFavorite ? 'currentColor' : 'none'} />
                   Favorite
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => window.location.href = `mailto:${post.artisan?.email}`}
-                className="w-full px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition flex items-center justify-center gap-2"
+                className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition flex items-center justify-center gap-2 font-semibold shadow-lg text-lg"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
               >
                 <Mail className="w-5 h-5" />
                 Contact Artist
-              </button>
+              </motion.button>
 
-              <p className="text-xs text-gray-500 mt-4 text-center">
-                Posted on {new Date(post.createdAt).toLocaleDateString()}
-              </p>
+              <motion.p 
+                className="text-xs text-gray-500 mt-6 text-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
+                Posted on {new Date(post.createdAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </motion.p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </main>
     </div>

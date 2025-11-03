@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
   ShoppingBag, Users, Heart, Award, TrendingUp, Globe, 
   Sparkles, BookOpen, Calendar, HandHeart, MessageCircle,
@@ -8,6 +9,72 @@ import {
 
 const LandingPage = () => {
   const navigate = useNavigate();
+
+  // Animation Variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 60 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  const fadeInDown = {
+    hidden: { opacity: 0, y: -60 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  const fadeInLeft = {
+    hidden: { opacity: 0, x: -60 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  const fadeInRight = {
+    hidden: { opacity: 0, x: 60 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const floatAnimation = {
+    y: [0, -20, 0],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  };
 
   const features = [
     {
@@ -122,86 +189,153 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
-      {/* Hero Section */}
-      <nav className="bg-white shadow-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white overflow-hidden">
+      {/* Animated Navbar */}
+      <motion.nav 
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white shadow-sm sticky top-0 z-50"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <div className="flex items-center gap-3">
-              <Palette className="w-10 h-10 text-indigo-600" />
+            <motion.div 
+              className="flex items-center gap-3"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <motion.div animate={floatAnimation}>
+                <Palette className="w-10 h-10 text-indigo-600" />
+              </motion.div>
               <span className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 CraftConnect
               </span>
-            </div>
+            </motion.div>
             <div className="flex items-center gap-4">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/signin')}
                 className="px-6 py-3 text-indigo-600 font-semibold hover:text-indigo-700 transition"
               >
                 Sign In
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(79, 70, 229, 0.3)" }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/signup')}
-                className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition font-semibold shadow-lg hover:shadow-xl"
+                className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition font-semibold shadow-lg"
               >
                 Get Started
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Hero Content */}
+      {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
-          <div className="text-center">
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6">
-              Empowering Artisans,
-              <span className="block bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <motion.div 
+            className="text-center"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+          >
+            <motion.h1 
+              variants={fadeInDown}
+              className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6 leading-tight"
+            >
+              <span className="block">Empowering Artisans,</span>
+              <span className="block mt-2 mb-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Preserving Traditions
               </span>
-            </h1>
-            <p className="text-xl sm:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto">
+            </motion.h1>
+            
+            <motion.p 
+              variants={fadeInUp}
+              className="text-xl sm:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto mt-2"
+            >
               India's first AI-powered platform connecting artisans, art lovers, and NGOs to celebrate and sustain traditional handicrafts
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button
+            </motion.p>
+            
+            <motion.div 
+              variants={fadeInUp}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(79, 70, 229, 0.4)" }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/signup')}
-                className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition font-bold text-lg shadow-2xl hover:shadow-3xl flex items-center gap-3 group"
+                className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition font-bold text-lg shadow-2xl flex items-center gap-3 group"
               >
                 Start Your Journey
-                <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition" />
-              </button>
-              <button
+                <motion.div
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  <ArrowRight className="w-6 h-6" />
+                </motion.div>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/marketplace')}
                 className="px-8 py-4 bg-white text-indigo-600 border-2 border-indigo-600 rounded-xl hover:bg-indigo-50 transition font-bold text-lg shadow-lg"
               >
                 Explore Marketplace
-              </button>
-            </div>
-          </div>
+              </motion.button>
+            </motion.div>
+          </motion.div>
 
-          {/* Floating Elements */}
-          <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8">
+          {/* Animated Stats */}
+          <motion.div 
+            className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+          >
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               return (
-                <div key={index} className="bg-white rounded-2xl shadow-xl p-6 text-center transform hover:scale-105 transition">
+                <motion.div
+                  key={index}
+                  variants={scaleIn}
+                  whileHover={{ 
+                    scale: 1.1, 
+                    rotate: [0, -5, 5, 0],
+                    transition: { duration: 0.3 }
+                  }}
+                  className="bg-white rounded-2xl shadow-xl p-6 text-center cursor-pointer"
+                >
                   <Icon className="w-10 h-10 text-indigo-600 mx-auto mb-3" />
-                  <p className="text-4xl font-bold text-gray-900 mb-1">{stat.number}</p>
+                  <motion.p 
+                    className="text-4xl font-bold text-gray-900 mb-1"
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.1 + 0.5, duration: 0.5 }}
+                  >
+                    {stat.number}
+                  </motion.p>
                   <p className="text-gray-600 font-medium">{stat.label}</p>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Features Grid */}
+      {/* Features Section */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <motion.div 
+            className="text-center mb-16"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+          >
             <h2 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4">
               Everything You Need in
               <span className="block bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
@@ -211,81 +345,152 @@ const LandingPage = () => {
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Comprehensive features designed to support artisans, delight customers, and empower NGOs
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <div
+                <motion.div
                   key={index}
-                  className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 border border-gray-100"
+                  variants={fadeInUp}
+                  whileHover={{ 
+                    y: -10,
+                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+                  }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg border border-gray-100 cursor-pointer"
                 >
                   <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-6 shadow-lg`}>
                     <Icon className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-3">{feature.title}</h3>
                   <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* How It Works */}
       <section className="py-24 bg-gradient-to-br from-indigo-50 to-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <motion.div 
+            className="text-center mb-16"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInDown}
+          >
             <h2 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4">
               How CraftConnect Works
             </h2>
             <p className="text-xl text-gray-600">Simple steps to get started</p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
             {howItWorks.map((item) => {
               const Icon = item.icon;
               return (
-                <div key={item.step} className="relative">
-                  <div className="bg-white rounded-2xl p-8 shadow-xl text-center h-full transform hover:scale-105 transition">
+                <motion.div 
+                  key={item.step} 
+                  className="relative"
+                  variants={scaleIn}
+                >
+                  <motion.div 
+                    className="bg-white rounded-2xl p-8 shadow-xl text-center h-full"
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: "0 25px 50px -12px rgba(79, 70, 229, 0.25)"
+                    }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
                     <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                       <span className="text-2xl font-bold text-white">{item.step}</span>
                     </div>
                     <Icon className="w-12 h-12 text-indigo-600 mx-auto mb-4" />
                     <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
                     <p className="text-gray-600">{item.description}</p>
-                  </div>
+                  </motion.div>
                   {item.step < 4 && (
-                    <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2">
+                    <motion.div 
+                      className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2"
+                      animate={{ x: [0, 10, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
                       <ArrowRight className="w-8 h-8 text-indigo-300" />
-                    </div>
+                    </motion.div>
                   )}
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Testimonials */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <motion.div 
+            className="text-center mb-16"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+          >
             <h2 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4">
               Loved by Our Community
             </h2>
             <p className="text-xl text-gray-600">Real stories from real people</p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition">
-                <div className="flex items-center gap-1 mb-4">
+              <motion.div 
+                key={index}
+                variants={index % 2 === 0 ? fadeInLeft : fadeInRight}
+                whileHover={{ 
+                  y: -10,
+                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+                }}
+                className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-xl cursor-pointer"
+              >
+                <motion.div 
+                  className="flex items-center gap-1 mb-4"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ delay: index * 0.2 }}
+                >
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, scale: 0 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.2 + i * 0.1 }}
+                    >
+                      <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
                 <p className="text-gray-700 text-lg italic mb-6">"{testimonial.quote}"</p>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-2xl">
@@ -296,38 +501,59 @@ const LandingPage = () => {
                     <p className="text-gray-600 text-sm">{testimonial.role}</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
+      <motion.section 
+        className="py-24 bg-gradient-to-r from-indigo-600 to-purple-600 relative overflow-hidden"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={fadeInUp}
+      >
         <div className="absolute inset-0 bg-black opacity-10"></div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-6">
+          <motion.h2 
+            className="text-4xl sm:text-5xl font-extrabold text-white mb-6"
+            variants={fadeInDown}
+          >
             Ready to Be Part of the Movement?
-          </h2>
-          <p className="text-xl text-white/90 mb-10">
+          </motion.h2>
+          <motion.p 
+            className="text-xl text-white/90 mb-10"
+            variants={fadeInUp}
+          >
             Join thousands of artisans, art lovers, and changemakers preserving India's rich cultural heritage
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
+          </motion.p>
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+            variants={staggerContainer}
+          >
+            <motion.button
+              variants={scaleIn}
+              whileHover={{ scale: 1.1, boxShadow: "0 25px 50px -12px rgba(255, 255, 255, 0.5)" }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/signup')}
               className="px-10 py-5 bg-white text-indigo-600 rounded-xl hover:bg-gray-100 transition font-bold text-lg shadow-2xl"
             >
               Join CraftConnect Today
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              variants={scaleIn}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/marketplace')}
               className="px-10 py-5 bg-transparent text-white border-2 border-white rounded-xl hover:bg-white/10 transition font-bold text-lg"
             >
               Explore Platform
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
