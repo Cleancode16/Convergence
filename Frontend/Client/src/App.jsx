@@ -11,6 +11,7 @@ import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import ArtisanDashboard from './pages/ArtisanDashboard';
 import NgoDashboard from './pages/NgoDashboard';
+import ArtisanProfileSetup from './pages/ArtisanProfileSetup';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -47,6 +48,15 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['artisan']}>
                 <ArtisanDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/artisan-profile-setup"
+            element={
+              <ProtectedRoute allowedRoles={['artisan']}>
+                <ArtisanProfileSetup />
               </ProtectedRoute>
             }
           />
