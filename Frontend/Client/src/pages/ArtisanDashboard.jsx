@@ -1,9 +1,10 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle } from 'lucide-react';
 import { logout } from '../redux/actions/authActions';
 import { getProfileStatus, getProfile } from '../services/artisanService';
+import confetti from 'canvas-confetti';
 
 const ArtisanDashboard = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -12,6 +13,7 @@ const ArtisanDashboard = () => {
   const [profileComplete, setProfileComplete] = useState(true);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
+  const confettiTriggered = useRef(false);
 
   useEffect(() => {
     const checkProfileStatus = async () => {
@@ -26,6 +28,17 @@ const ArtisanDashboard = () => {
             const profileResponse = await getProfile(userInfo.token);
             if (profileResponse.success) {
               setProfileData(profileResponse.data);
+              
+              // Trigger confetti only once when verified
+              if (profileResponse.data.verificationStatus === 'verified' && !confettiTriggered.current) {
+                const hasSeenConfetti = localStorage.getItem(`confetti_${userInfo._id}`);
+                
+                if (!hasSeenConfetti) {
+                  triggerConfetti();
+                  localStorage.setItem(`confetti_${userInfo._id}`, 'true');
+                  confettiTriggered.current = true;
+                }
+              }
             }
           }
         }
@@ -41,6 +54,42 @@ const ArtisanDashboard = () => {
       checkProfileStatus();
     }
   }, [userInfo, navigate]);
+
+  const triggerConfetti = () => {
+    const duration = 5 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+
+      // Confetti from left side
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+        colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
+      });
+
+      // Confetti from right side
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+        colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
+      });
+    }, 250);
+  };
 
   const handleLogout = () => {
     dispatch(logout());
@@ -74,9 +123,9 @@ const ArtisanDashboard = () => {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-white">Artisan Dashboard</h1>
               {profileData?.isExpertVerified && (
-                <div className="flex items-center gap-1 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  <BadgeCheck className="w-4 h-4" />
-                  <span>Verified Expert</span>
+                <div className="flex items-center gap-1.5 bg-blue-500 text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow-lg">
+                  <BadgeCheck className="w-5 h-5 fill-white" />
+                  <span className="hidden sm:inline">Expert Verified</span>
                 </div>
               )}
             </div>
@@ -102,41 +151,75 @@ const ArtisanDashboard = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div className="flex items-center gap-3">
               <h2 className="text-xl font-semibold text-gray-900">
                 Welcome back, {userInfo?.name}!
               </h2>
               {profileData?.isExpertVerified && (
-                <BadgeCheck className="w-6 h-6 text-blue-500" />
+                <div className="relative group">
+                  <BadgeCheck className="w-7 h-7 text-blue-500 fill-blue-100 cursor-pointer" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    Verified Expert Artisan
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                      <div className="border-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
             {profileData?.verificationStatus && (
-              <div>
+              <div className="flex items-center gap-2">
                 {profileData.verificationStatus === 'pending' && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800 border-2 border-yellow-300">
+                    <Clock className="w-4 h-4" />
                     Verification Pending
                   </span>
                 )}
                 {profileData.verificationStatus === 'verified' && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                    <BadgeCheck className="w-4 h-4" />
-                    Verified Expert Artisan
+                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+                    <BadgeCheck className="w-5 h-5 fill-white" />
+                    Expert Verified Artisan
+                    <span className="ml-1 px-2 py-0.5 bg-white text-blue-600 text-xs rounded-full">✓ Genuine</span>
                   </span>
                 )}
                 {profileData.verificationStatus === 'rejected' && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-red-100 text-red-800 border-2 border-red-300">
+                    <XCircle className="w-4 h-4" />
                     Verification Rejected
                   </span>
                 )}
                 {profileData.verificationStatus === 'fraud' && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-red-100 text-red-800 border-2 border-red-300">
+                    <AlertCircle className="w-4 h-4" />
                     Account Flagged
                   </span>
                 )}
               </div>
             )}
           </div>
+
+          {/* Verification Success Banner */}
+          {profileData?.verificationStatus === 'verified' && (
+            <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-green-50 border-l-4 border-blue-500 rounded-lg shadow-sm">
+              <div className="flex items-start gap-3">
+                <BadgeCheck className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-blue-900">
+                    🎉 Congratulations! You are an Expert Verified Artisan
+                  </p>
+                  <p className="text-sm text-blue-700 mt-1">
+                    Your profile has been verified by our admin team. This badge confirms you as a genuine and trusted artisan on our platform.
+                  </p>
+                  {profileData.verificationNotes && (
+                    <p className="text-xs text-blue-600 mt-2 italic">
+                      Admin note: {profileData.verificationNotes}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Verification Message */}
           {profileData?.verificationStatus === 'pending' && (
