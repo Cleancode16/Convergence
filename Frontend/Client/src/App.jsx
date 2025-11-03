@@ -14,6 +14,8 @@ import NgoDashboard from './pages/NgoDashboard';
 import ArtisanProfileSetup from './pages/ArtisanProfileSetup';
 import NgoProfileSetup from './pages/NgoProfileSetup';
 import ProtectedRoute from './components/ProtectedRoute';
+import BrowseArtisans from './pages/BrowseArtisans';
+import ArtisanConnections from './pages/ArtisanConnections';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -76,6 +78,24 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['ngo']}>
                 <NgoProfileSetup />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/browse-artisans"
+            element={
+              <ProtectedRoute allowedRoles={['ngo']}>
+                <BrowseArtisans />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/artisan-connections"
+            element={
+              <ProtectedRoute allowedRoles={['artisan']}>
+                <ArtisanConnections />
               </ProtectedRoute>
             }
           />

@@ -138,8 +138,83 @@ const getProfileStatus = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get artisans matching NGO's interested domains
+// @route   GET /api/ngo/artisans
+// @access  Private (NGO only)
+const getMatchingArtisans = asyncHandler(async (req, res) => {
+  const ArtisanProfile = require('../models/ArtisanProfile');
+
+  // Get NGO profile to check interested domains
+  const ngoProfile = await NgoProfile.findOne({ user: req.user._id });
+
+  if (!ngoProfile) {
+    res.status(404);
+    throw new Error('Please complete your profile first');
+  }
+
+  const { search, artType, verificationStatus = 'verified' } = req.query;
+
+  let query = {
+    profileComplete: true,
+    verificationStatus: verificationStatus || 'verified',
+  };
+
+  // Filter by art type if specified, otherwise use NGO's interested domains
+  if (artType && artType !== 'all') {
+    query.artType = artType;
+  } else if (!ngoProfile.interestedArtDomains.includes('all')) {
+    query.artType = { $in: ngoProfile.interestedArtDomains };
+  }
+
+  const artisans = await ArtisanProfile.find(query)
+    .populate('user', 'name email')
+    .sort({ createdAt: -1 });
+
+  // Filter by search term if provided
+  let filteredArtisans = artisans;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredArtisans = artisans.filter(
+      (artisan) =>
+        artisan.user.name.toLowerCase().includes(searchLower) ||
+        artisan.bio?.toLowerCase().includes(searchLower) ||
+        artisan.artType.toLowerCase().includes(searchLower)
+    );
+  }
+
+  res.json({
+    success: true,
+    count: filteredArtisans.length,
+    data: filteredArtisans,
+  });
+});
+
+// @desc    Get single artisan details
+// @route   GET /api/ngo/artisans/:id
+// @access  Private (NGO only)
+const getArtisanDetails = asyncHandler(async (req, res) => {
+  const ArtisanProfile = require('../models/ArtisanProfile');
+
+  const artisan = await ArtisanProfile.findById(req.params.id).populate(
+    'user',
+    'name email createdAt'
+  );
+
+  if (!artisan) {
+    res.status(404);
+    throw new Error('Artisan not found');
+  }
+
+  res.json({
+    success: true,
+    data: artisan,
+  });
+});
+
 module.exports = {
   getProfile,
   createOrUpdateProfile,
   getProfileStatus,
+  getMatchingArtisans,
+  getArtisanDetails,
 };

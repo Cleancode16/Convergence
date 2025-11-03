@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle } from 'lucide-react';
+import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle, Users } from 'lucide-react';
 import { logout } from '../redux/actions/authActions';
 import { getProfileStatus, getProfile } from '../services/artisanService';
 import confetti from 'canvas-confetti';
@@ -309,6 +309,17 @@ const ArtisanDashboard = () => {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Analytics</h3>
             <p className="text-gray-600 text-sm">Sales insights</p>
+          </div>
+
+          <div 
+            onClick={() => navigate('/artisan-connections')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-teal-100 rounded-lg mb-4">
+              <Users className="w-6 h-6 text-teal-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">NGO Connections</h3>
+            <p className="text-gray-600 text-sm">View requests & connected NGOs</p>
           </div>
         </div>
       </main>

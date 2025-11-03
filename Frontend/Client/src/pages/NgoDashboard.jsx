@@ -106,20 +106,23 @@ const NgoDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            onClick={() => navigate('/browse-artisans')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-teal-100 rounded-lg mb-4">
+              <Users className="w-6 h-6 text-teal-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Browse Artisans</h3>
+            <p className="text-gray-600 text-sm">Find and connect with artisans</p>
+          </div>
+
           <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
             <div className="flex items-center justify-center w-12 h-12 bg-teal-100 rounded-lg mb-4">
               <FileText className="w-6 h-6 text-teal-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">New Program</h3>
             <p className="text-gray-600 text-sm">Create support program</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
-            <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4">
-              <Users className="w-6 h-6 text-blue-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Artisans</h3>
-            <p className="text-gray-600 text-sm">Manage beneficiaries</p>
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">

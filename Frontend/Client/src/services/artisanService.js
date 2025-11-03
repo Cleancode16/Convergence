@@ -41,3 +41,50 @@ export const createOrUpdateProfile = async (profileData, token) => {
     throw new Error(error.response?.data?.message || 'Failed to update profile');
   }
 };
+
+export const getConnectionRequests = async (token, status = 'all') => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/connection-requests?status=${status}`,
+      getAuthHeader(token)
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch connection requests');
+  }
+};
+
+export const acceptConnectionRequest = async (connectionId, token) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/connection-requests/${connectionId}/accept`,
+      {},
+      getAuthHeader(token)
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to accept connection');
+  }
+};
+
+export const rejectConnectionRequest = async (connectionId, token) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/connection-requests/${connectionId}/reject`,
+      {},
+      getAuthHeader(token)
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to reject connection');
+  }
+};
+
+export const getConnectedNgos = async (token) => {
+  try {
+    const response = await axios.get(`${API_URL}/connections`, getAuthHeader(token));
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch connections');
+  }
+};
