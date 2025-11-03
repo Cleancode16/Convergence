@@ -13,6 +13,8 @@ const productRoutes = require('./routes/productRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const walletRoutes = require('./routes/walletRoutes');
+const artistPostRoutes = require('./routes/artistPostRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -42,6 +44,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/wallet', walletRoutes);
+app.use('/api/artist-posts', artistPostRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 // Socket.IO
 const userSocketMap = new Map();

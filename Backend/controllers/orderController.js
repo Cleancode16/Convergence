@@ -48,9 +48,20 @@ const createOrder = asyncHandler(async (req, res) => {
   // Transfer money to artisan's wallet
   const artisan = await User.findById(product.artisan);
   if (artisan) {
-    artisan.walletBalance += totalPrice;
+    // Initialize walletBalance if it doesn't exist
+    if (artisan.walletBalance === undefined || artisan.walletBalance === null) {
+      artisan.walletBalance = 0;
+    }
+    artisan.walletBalance = Number(artisan.walletBalance) + Number(totalPrice);
     await artisan.save();
+    
+    console.log(`Added ₹${totalPrice} to artisan ${artisan.name}'s wallet. New balance: ₹${artisan.walletBalance}`);
   }
+
+  // Add to user's purchased products
+  await User.findByIdAndUpdate(req.user._id, {
+    $addToSet: { purchasedProducts: productId }
+  });
 
   // Create transaction record
   await Transaction.create({
@@ -69,7 +80,7 @@ const createOrder = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    message: 'Order placed successfully! Payment transferred to artisan.',
+    message: `Order placed successfully! ₹${totalPrice} transferred to artisan's wallet.`,
     data: populatedOrder,
   });
 });

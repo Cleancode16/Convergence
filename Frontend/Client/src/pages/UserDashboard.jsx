@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../redux/actions/authActions';
-import { ShoppingBag, Heart, Package, CreditCard, User, LogOut } from 'lucide-react';
+import { ShoppingBag, Heart, Package, CreditCard, User, LogOut, Users } from 'lucide-react';
 
 const UserDashboard = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -45,6 +45,17 @@ const UserDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div 
+            onClick={() => navigate('/explore-artists')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4">
+              <Users className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Explore Artists</h3>
+            <p className="text-gray-600 text-sm">Discover talented artisans</p>
+          </div>
+
           <div 
             onClick={() => navigate('/marketplace')}
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"

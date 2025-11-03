@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle, Users, Wallet } from 'lucide-react';
+import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle, Users, Wallet, FileText } from 'lucide-react';
 import { logout } from '../redux/actions/authActions';
 import { getProfileStatus, getProfile } from '../services/artisanService';
 import { getBalance } from '../services/walletService';
@@ -26,12 +26,10 @@ const ArtisanDashboard = () => {
             navigate('/artisan-profile-setup');
           } else {
             setProfileComplete(true);
-            // Fetch full profile to get verification status
             const profileResponse = await getProfile(userInfo.token);
             if (profileResponse.success) {
               setProfileData(profileResponse.data);
               
-              // Trigger confetti only once when verified
               if (profileResponse.data.verificationStatus === 'verified' && !confettiTriggered.current) {
                 const hasSeenConfetti = localStorage.getItem(`confetti_${userInfo._id}`);
                 
@@ -44,8 +42,14 @@ const ArtisanDashboard = () => {
             }
 
             // Fetch wallet balance
-            const balanceData = await getBalance(userInfo.token);
-            setWalletBalance(balanceData.data.balance);
+            try {
+              const balanceData = await getBalance(userInfo.token);
+              setWalletBalance(balanceData.data.balance || 0);
+              console.log('Wallet balance:', balanceData.data.balance);
+            } catch (error) {
+              console.error('Error fetching wallet balance:', error);
+              setWalletBalance(0);
+            }
           }
         }
       } catch (error) {
@@ -270,12 +274,25 @@ const ArtisanDashboard = () => {
                 <Wallet className="w-4 h-4" />
                 Wallet Balance
               </p>
-              <p className="text-3xl font-bold text-purple-600">₹{walletBalance.toLocaleString()}</p>
+              <p className="text-3xl font-bold text-purple-600">
+                ₹{walletBalance ? walletBalance.toLocaleString('en-IN') : '0'}
+              </p>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div 
+            onClick={() => navigate('/my-artist-post')}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4">
+              <FileText className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">My Artist Post</h3>
+            <p className="text-gray-600 text-sm">Share your story & arts</p>
+          </div>
+
           <div 
             onClick={() => navigate('/create-product')}
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"

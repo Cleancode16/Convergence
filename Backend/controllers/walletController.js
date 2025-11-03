@@ -8,10 +8,16 @@ const User = require('../models/User');
 const getBalance = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).select('walletBalance');
 
+  // Initialize if null
+  if (user.walletBalance === undefined || user.walletBalance === null) {
+    user.walletBalance = 0;
+    await user.save();
+  }
+
   res.json({
     success: true,
     data: {
-      balance: user.walletBalance || 0,
+      balance: Number(user.walletBalance) || 0,
     },
   });
 });
@@ -54,13 +60,20 @@ const getEarnings = asyncHandler(async (req, res) => {
     })
     .sort({ createdAt: -1 });
 
-  const totalEarnings = transactions.reduce((sum, t) => sum + t.amount, 0);
+  const totalEarnings = transactions.reduce((sum, t) => sum + Number(t.amount), 0);
+
+  // Get current balance
+  const user = await User.findById(req.user._id).select('walletBalance');
+  if (user.walletBalance === undefined || user.walletBalance === null) {
+    user.walletBalance = 0;
+    await user.save();
+  }
 
   res.json({
     success: true,
     data: {
       totalEarnings,
-      currentBalance: req.user.walletBalance || 0,
+      currentBalance: Number(user.walletBalance) || 0,
       transactions,
     },
   });

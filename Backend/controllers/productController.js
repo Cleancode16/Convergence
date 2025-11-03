@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Product = require('../models/Product');
+const User = require('../models/User');
 
 // @desc    Create product
 // @route   POST /api/products
@@ -160,9 +161,19 @@ const toggleLike = asyncHandler(async (req, res) => {
   if (hasLiked) {
     product.likes = product.likes.filter(id => id.toString() !== req.user._id.toString());
     product.likesCount = product.likes.length;
+    
+    // Remove from user's liked products
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { likedProducts: req.params.id }
+    });
   } else {
     product.likes.push(req.user._id);
     product.likesCount = product.likes.length;
+    
+    // Add to user's liked products
+    await User.findByIdAndUpdate(req.user._id, {
+      $addToSet: { likedProducts: req.params.id }
+    });
   }
 
   await product.save();

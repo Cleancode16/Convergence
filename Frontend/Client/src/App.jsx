@@ -1,7 +1,3 @@
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store';
@@ -22,10 +18,13 @@ import ProductDetails from './pages/ProductDetails';
 import MyProducts from './pages/MyProducts';
 import MyOrders from './pages/MyOrders';
 import ArtisanOrders from './pages/ArtisanOrders';
+import EditProduct from './pages/EditProduct';
+import MyArtistPost from './pages/MyArtistPost';
+import CreateArtistPost from './pages/CreateArtistPost';
+import ExploreArtists from './pages/ExploreArtists';
+import ArtistPostDetails from './pages/ArtistPostDetails';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <Provider store={store}>
       <Router>
@@ -116,6 +115,15 @@ function App() {
           />
           
           <Route
+            path="/edit-product/:id"
+            element={
+              <ProtectedRoute allowedRoles={['artisan']}>
+                <EditProduct />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
             path="/marketplace"
             element={
               <ProtectedRoute allowedRoles={['user', 'artisan', 'ngo']}>
@@ -159,10 +167,46 @@ function App() {
               </ProtectedRoute>
             }
           />
+          
+          <Route
+            path="/my-artist-post"
+            element={
+              <ProtectedRoute allowedRoles={['artisan']}>
+                <MyArtistPost />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/create-artist-post"
+            element={
+              <ProtectedRoute allowedRoles={['artisan']}>
+                <CreateArtistPost />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/explore-artists"
+            element={
+              <ProtectedRoute allowedRoles={['user', 'ngo']}>
+                <ExploreArtists />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/artist-post/:id"
+            element={
+              <ProtectedRoute allowedRoles={['user', 'artisan', 'ngo']}>
+                <ArtistPostDetails />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Router>
     </Provider>
   );
 }
 
-export default App
+export default App;

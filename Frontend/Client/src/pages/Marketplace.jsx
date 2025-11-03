@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Search, Filter, Heart, ShoppingCart, ArrowLeft } from 'lucide-react';
 import { getProducts, toggleLike } from '../services/productService';
+import { getRecommendations } from '../services/recommendationService';
 
 const Marketplace = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+  const [recommendations, setRecommendations] = useState([]);
 
   const categories = [
     { value: 'all', label: 'All Categories' },
@@ -31,6 +33,9 @@ const Marketplace = () => {
 
   useEffect(() => {
     fetchProducts();
+    if (userInfo) {
+      fetchRecommendations();
+    }
   }, [selectedCategory, searchTerm]);
 
   const fetchProducts = async () => {
@@ -57,6 +62,15 @@ const Marketplace = () => {
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRecommendations = async () => {
+    try {
+      const data = await getRecommendations(userInfo.token);
+      setRecommendations(data.data?.map(p => p._id) || []);
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
     }
   };
 
@@ -93,6 +107,10 @@ const Marketplace = () => {
 
   const formatCategory = (category) => {
     return category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const isRecommended = (productId) => {
+    return recommendations.includes(productId);
   };
 
   return (
@@ -185,6 +203,16 @@ const Marketplace = () => {
               >
                 {/* Product Image */}
                 <div className="relative h-64 bg-gray-200 overflow-hidden">
+                  {/* Strongly Recommended Badge */}
+                  {isRecommended(product._id) && (
+                    <div className="absolute top-2 left-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-full z-10 flex items-center gap-1 shadow-lg">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      Recommended
+                    </div>
+                  )}
+
                   {product.media && product.media.length > 0 ? (
                     product.media[0].type === 'image' ? (
                       <img

@@ -36,6 +36,32 @@ const userSchema = new mongoose.Schema(
       default: 0,
       min: [0, 'Wallet balance cannot be negative'],
     },
+    favoriteArtists: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    }],
+    likedProducts: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+    }],
+    likedPosts: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ArtistPost',
+    }],
+    viewedProducts: [{
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+      },
+      viewedAt: {
+        type: Date,
+        default: Date.now,
+      }
+    }],
+    purchasedProducts: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+    }],
   },
   {
     timestamps: true,
