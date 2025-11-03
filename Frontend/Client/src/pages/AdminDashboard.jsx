@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Users, CheckCircle, AlertCircle, XCircle, Clock, LogOut, Search } from 'lucide-react';
 import { logout } from '../redux/actions/authActions';
 import { getArtisanStats, getAllArtisans, verifyArtisan, markAsFraud, rejectArtisan } from '../services/adminService';
+import { generateStory, getAllStories, deleteStory } from '../services/artStoryService';
 
 const AdminDashboard = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -11,6 +12,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [artisans, setArtisans] = useState([]);
+  const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,9 +21,18 @@ const AdminDashboard = () => {
   const [modalAction, setModalAction] = useState('');
   const [notes, setNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [generatingStory, setGeneratingStory] = useState(false);
+  const [selectedArtForm, setSelectedArtForm] = useState('');
+
+  const artForms = [
+    'Pottery', 'Weaving', 'Tanjore Paintings', 'Puppetry', 'Dokra Jewellery',
+    'Meenakari', 'Kondapalli Bommalu', 'Ikkat', 'Mandala Art', 'Madhubani Painting',
+    'Warli Art', 'Pattachitra', 'Kalamkari', 'Bidriware', 'Blue Pottery'
+  ];
 
   useEffect(() => {
     fetchData();
+    fetchStories(); // Add this to fetch stories on mount
   }, [userInfo, filterStatus, searchTerm]);
 
   const fetchData = async () => {
@@ -37,6 +48,15 @@ const AdminDashboard = () => {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStories = async () => {
+    try {
+      const data = await getAllStories();
+      setStories(data.data || []);
+    } catch (error) {
+      console.error('Error fetching stories:', error);
     }
   };
 
@@ -87,6 +107,41 @@ const AdminDashboard = () => {
       alert(error.message);
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleGenerateStory = async () => {
+    if (!selectedArtForm) {
+      alert('Please select an art form');
+      return;
+    }
+
+    if (!confirm(`Generate AI story for ${selectedArtForm}? This may take 1-2 minutes.`)) {
+      return;
+    }
+
+    try {
+      setGeneratingStory(true);
+      await generateStory(selectedArtForm, userInfo.token);
+      alert('Story generated successfully!');
+      setSelectedArtForm('');
+      fetchStories();
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setGeneratingStory(false);
+    }
+  };
+
+  const handleDeleteStory = async (storyId) => {
+    if (!confirm('Are you sure you want to delete this story?')) return;
+
+    try {
+      await deleteStory(storyId, userInfo.token);
+      alert('Story deleted successfully');
+      fetchStories();
+    } catch (error) {
+      alert(error.message);
     }
   };
 
@@ -300,6 +355,62 @@ const AdminDashboard = () => {
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* Generate Art Stories Section */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Generate Art Stories (AI)</h2>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Art Form
+            </label>
+            <select
+              value={selectedArtForm}
+              onChange={(e) => setSelectedArtForm(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              disabled={generatingStory}
+            >
+              <option value="">Choose an art form...</option>
+              {artForms.map((art) => (
+                <option key={art} value={art}>{art}</option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={handleGenerateStory}
+            disabled={generatingStory || !selectedArtForm}
+            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {generatingStory ? 'Generating Story... (1-2 min)' : 'Generate Story with AI'}
+          </button>
+
+          {/* Existing Stories */}
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              Existing Stories ({stories.length})
+            </h3>
+            <div className="space-y-2">
+              {stories.map((story) => (
+                <div key={story._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="font-medium text-gray-900">{story.title}</p>
+                    <p className="text-sm text-gray-600">{story.artForm}</p>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteStory(story._id)}
+                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+              {stories.length === 0 && (
+                <p className="text-gray-500 text-sm">No stories generated yet</p>
+              )}
+            </div>
           </div>
         </div>
       </main>

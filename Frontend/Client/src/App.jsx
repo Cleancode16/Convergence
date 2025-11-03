@@ -23,6 +23,8 @@ import MyArtistPost from './pages/MyArtistPost';
 import CreateArtistPost from './pages/CreateArtistPost';
 import ExploreArtists from './pages/ExploreArtists';
 import ArtistPostDetails from './pages/ArtistPostDetails';
+import ArtsAndStories from './pages/ArtsAndStories';
+import ArtStoryReader from './pages/ArtStoryReader';
 
 function App() {
   return (
@@ -200,6 +202,24 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['user', 'artisan', 'ngo']}>
                 <ArtistPostDetails />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/arts-and-stories"
+            element={
+              <ProtectedRoute allowedRoles={['user', 'artisan', 'ngo']}>
+                <ArtsAndStories />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/art-story/:id"
+            element={
+              <ProtectedRoute allowedRoles={['user', 'artisan', 'ngo']}>
+                <ArtStoryReader />
               </ProtectedRoute>
             }
           />
