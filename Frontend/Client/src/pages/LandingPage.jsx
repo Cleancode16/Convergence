@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ShoppingBag, Users, Heart, Award, TrendingUp, Globe, 
@@ -9,6 +10,40 @@ import {
 
 const LandingPage = () => {
   const navigate = useNavigate();
+
+  const words = [
+    'Artisans',
+    'Our Heritage',
+    'Craftsmanship',
+    'Our Culture',
+    'Traditional Arts',
+    'Authenticity',
+    'Our Legacy',
+    'Sustainability',
+    'Communities',
+    'Excellence',
+    'Master Artists',
+    'Innovation',
+    'Quality Crafts',
+    'Timeless Art',
+    'Creative Passion',
+    'Traditional Skills',
+    'Cultural Pride',
+    'Fine Artistry',
+    'Ancient Wisdom',
+    'Artistic Beauty',
+    'Craft Integrity'
+  ];
+
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Animation Variants
   const fadeInUp = {
@@ -245,10 +280,14 @@ const LandingPage = () => {
           >
             <motion.h1 
               variants={fadeInDown}
-              className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6 leading-tight"
+              className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6 leading-tight min-h-[180px] sm:min-h-[200px] lg:min-h-[240px] flex flex-col items-center justify-center gap-1"
             >
-              <span className="block">Empowering Artisans,</span>
-              <span className="block mt-2 mb-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <span className="block">Empowering{' '}
+                <span className="inline-block bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  {words[currentWordIndex]}
+                </span>
+                ,</span>
+              <span className="block bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Preserving Traditions
               </span>
             </motion.h1>
