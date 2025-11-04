@@ -229,7 +229,7 @@ How can I assist you today?`,
       }
       className={`fixed ${
         isMaximized ? '' : 'bottom-8 right-8'
-      } bg-white rounded-3xl shadow-2xl flex flex-col z-50 overflow-hidden border-2 border-gray-200 transition-all duration-300`}
+      } bg-white rounded-3xl shadow-2xl flex flex-col z-50 overflow-hidden border-2 border-indigo-200 transition-all duration-300`}
     >
       {/* Resize Handles */}
       {!isMaximized && (
@@ -249,8 +249,8 @@ How can I assist you today?`,
         </>
       )}
 
-      {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 flex items-center justify-between">
+      {/* Header - Light gradient */}
+      <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white p-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
             <Bot className="w-8 h-8" />
@@ -284,8 +284,8 @@ How can I assist you today?`,
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gradient-to-b from-gray-50 to-white">
+      {/* Messages - Light background */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50">
         {messages.map((message, index) => (
           <div key={index}>
             <div className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -403,9 +403,9 @@ How can I assist you today?`,
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Quick Questions */}
+      {/* Quick Questions - Light theme */}
       {messages.length <= 2 && (
-        <div className="px-6 py-4 bg-gray-50 border-t-2 border-gray-200">
+        <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-purple-50 border-t-2 border-indigo-200">
           <p className="text-base text-gray-700 mb-4 flex items-center gap-2 font-semibold">
             <Sparkles className="w-5 h-5 text-indigo-600" />
             Quick questions:
@@ -424,8 +424,8 @@ How can I assist you today?`,
         </div>
       )}
 
-      {/* Input */}
-      <form onSubmit={handleSendMessage} className="p-6 border-t-2 border-gray-200 bg-white rounded-b-3xl">
+      {/* Input - Light theme */}
+      <form onSubmit={handleSendMessage} className="p-6 border-t-2 border-indigo-200 bg-white rounded-b-3xl">
         <div className="flex gap-4">
           <input
             type="text"

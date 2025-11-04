@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { X, Send, Edit2, Trash2, Check, XCircle, MessageCircle, Moon, Sun } from 'lucide-react';
+import { X, Send, Edit2, Trash2, Check, XCircle, MessageCircle } from 'lucide-react';
 import { io } from 'socket.io-client';
 import { getMessages, sendMessage, editMessage, deleteMessage } from '../services/messageService';
 
@@ -13,10 +13,9 @@ const ChatModal = ({ connection, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useState(false);
-  const messagesEndRef = useRef(null);
-  const socketRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
+  messagesEndRef = useRef(null);
+  socketRef = useRef(null);
+  typingTimeoutRef = useRef(null);
 
   const otherUser = userInfo.role === 'ngo' 
     ? { _id: connection.artisan._id || connection.artisan, name: connection.artisan.name || 'Artisan' }
@@ -153,10 +152,6 @@ const ChatModal = ({ connection, onClose }) => {
     setEditContent('');
   };
 
-  const toggleTheme = () => {
-    setIsDarkTheme(!isDarkTheme);
-  };
-
   const formatTime = (dateString) => {
     return new Date(dateString).toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -194,32 +189,25 @@ const ChatModal = ({ connection, onClose }) => {
   const messageGroups = groupMessagesByDate(messages);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-      <div className={`rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden ${isDarkTheme ? 'bg-black border-2 border-gray-800' : 'bg-white border-2 border-gray-200'}`}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden bg-white border-2 border-gray-200">
         {/* Header */}
-        <div className={`flex items-center justify-between px-6 py-4 border-b ${isDarkTheme ? 'bg-black border-gray-800' : 'bg-white border-gray-200'}`}>
+        <div className="flex items-center justify-between px-6 py-4 border-b bg-gradient-to-r from-indigo-500 to-purple-500 border-gray-200">
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${isDarkTheme ? 'bg-white text-black' : 'bg-black text-white'}`}>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl bg-white text-indigo-600">
               {otherUser.name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h3 className={`font-bold text-xl ${isDarkTheme ? 'text-white' : 'text-black'}`}>{otherUser.name}</h3>
-              <p className={`text-sm ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`}>
+              <h3 className="font-bold text-xl text-white">{otherUser.name}</h3>
+              <p className="text-sm text-indigo-100">
                 {userInfo.role === 'ngo' ? 'Artisan' : 'NGO'}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-full transition ${isDarkTheme ? 'text-white hover:bg-gray-800' : 'text-black hover:bg-gray-100'}`}
-              title={isDarkTheme ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            >
-              {isDarkTheme ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-            <button
               onClick={onClose}
-              className={`p-2 rounded-full transition ${isDarkTheme ? 'text-white hover:bg-gray-800' : 'text-black hover:bg-gray-100'}`}
+              className="text-white hover:bg-white/20 p-2 rounded-full transition"
             >
               <X className="w-6 h-6" />
             </button>
@@ -227,17 +215,17 @@ const ChatModal = ({ connection, onClose }) => {
         </div>
 
         {/* Messages */}
-        <div className={`flex-1 overflow-y-auto p-6 ${isDarkTheme ? 'bg-gray-200' : 'bg-gray-50'}`}>
+        <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-gray-50 to-white">
           {loading ? (
             <div className="flex items-center justify-center h-full">
-              <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${isDarkTheme ? 'border-black' : 'border-black'}`}></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
             </div>
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full">
-              <div className={`rounded-2xl p-8 text-center ${isDarkTheme ? 'bg-white' : 'bg-white'}`}>
-                <MessageCircle className={`w-20 h-20 mx-auto mb-4 ${isDarkTheme ? 'text-gray-400' : 'text-gray-300'}`} />
-                <p className={`font-semibold text-lg ${isDarkTheme ? 'text-black' : 'text-black'}`}>No messages yet</p>
-                <p className={`text-sm mt-2 ${isDarkTheme ? 'text-gray-600' : 'text-gray-600'}`}>Start the conversation!</p>
+              <div className="rounded-2xl p-8 text-center bg-white shadow-lg border border-gray-200">
+                <MessageCircle className="w-20 h-20 mx-auto mb-4 text-indigo-300" />
+                <p className="font-semibold text-lg text-gray-900">No messages yet</p>
+                <p className="text-sm mt-2 text-gray-600">Start the conversation!</p>
               </div>
             </div>
           ) : (
@@ -245,7 +233,7 @@ const ChatModal = ({ connection, onClose }) => {
               {Object.entries(messageGroups).map(([date, msgs]) => (
                 <div key={date}>
                   <div className="flex items-center justify-center my-6">
-                    <span className={`px-4 py-2 text-xs font-semibold rounded-full ${isDarkTheme ? 'bg-white text-black' : 'bg-white text-black'}`}>
+                    <span className="px-4 py-2 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700">
                       {date}
                     </span>
                   </div>
@@ -263,7 +251,7 @@ const ChatModal = ({ connection, onClose }) => {
                           {/* Avatar */}
                           <div className="w-10 flex items-end pb-1">
                             {!isSender && showAvatar && (
-                              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${isDarkTheme ? 'bg-white text-black' : 'bg-black text-white'}`}>
+                              <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-indigo-100 text-indigo-600">
                                 {message.sender.name?.charAt(0).toUpperCase()}
                               </div>
                             )}
@@ -271,25 +259,25 @@ const ChatModal = ({ connection, onClose }) => {
 
                           <div className="flex-1">
                             {isEditing ? (
-                              <div className={`rounded-2xl p-4 ${isDarkTheme ? 'bg-gray-900 border-2 border-white' : 'bg-white border-2 border-black'}`}>
+                              <div className="rounded-2xl p-4 bg-white border-2 border-indigo-200 shadow-md">
                                 <textarea
                                   value={editContent}
                                   onChange={(e) => setEditContent(e.target.value)}
-                                  className={`w-full px-3 py-2 border-2 rounded-xl resize-none focus:outline-none text-sm ${isDarkTheme ? 'bg-black border-gray-700 text-white' : 'bg-white border-gray-300 text-black'}`}
+                                  className="w-full px-3 py-2 border-2 rounded-xl resize-none focus:outline-none text-sm bg-white border-gray-300 text-gray-900 focus:border-indigo-500"
                                   rows="3"
                                   autoFocus
                                 />
                                 <div className="flex gap-2 mt-3">
                                   <button
                                     onClick={() => handleEditMessage(message._id)}
-                                    className={`flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-medium transition ${isDarkTheme ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'}`}
+                                    className="flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-medium transition bg-indigo-600 text-white hover:bg-indigo-700"
                                   >
                                     <Check className="w-4 h-4" />
                                     Save
                                   </button>
                                   <button
                                     onClick={cancelEdit}
-                                    className={`flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-medium transition ${isDarkTheme ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-300 text-black hover:bg-gray-400'}`}
+                                    className="flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-medium transition bg-gray-200 text-gray-700 hover:bg-gray-300"
                                   >
                                     <XCircle className="w-4 h-4" />
                                     Cancel
@@ -299,12 +287,10 @@ const ChatModal = ({ connection, onClose }) => {
                             ) : (
                               <div className="relative">
                                 <div
-                                  className={`rounded-2xl px-5 py-3 ${
+                                  className={`rounded-2xl px-5 py-3 shadow-md ${
                                     isSender
-                                      ? 'bg-black text-white'
-                                      : isDarkTheme
-                                        ? 'bg-gray-800 text-white'
-                                        : 'bg-gray-600 text-white'
+                                      ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white'
+                                      : 'bg-white text-gray-900 border border-gray-200'
                                   }`}
                                   style={{
                                     wordBreak: 'break-word',
@@ -314,15 +300,15 @@ const ChatModal = ({ connection, onClose }) => {
                                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                                   <div className="flex items-center justify-end gap-2 mt-2">
                                     {message.isEdited && (
-                                      <span className="text-[10px] italic text-gray-400">
+                                      <span className={`text-[10px] italic ${isSender ? 'text-indigo-200' : 'text-gray-500'}`}>
                                         edited
                                       </span>
                                     )}
-                                    <span className="text-[10px] text-gray-400">
+                                    <span className={`text-[10px] ${isSender ? 'text-indigo-200' : 'text-gray-500'}`}>
                                       {formatTime(message.createdAt)}
                                     </span>
                                     {isSender && (
-                                      <span className="text-xs text-gray-400">
+                                      <span className="text-xs text-indigo-200">
                                         {message.readBy?.includes(otherUser._id) ? '✓✓' : '✓'}
                                       </span>
                                     )}
@@ -334,14 +320,14 @@ const ChatModal = ({ connection, onClose }) => {
                                   <div className={`absolute top-0 ${isSender ? 'left-0 -translate-x-full pl-2' : 'right-0 translate-x-full pr-2'} flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity`}>
                                     <button
                                       onClick={() => startEdit(message)}
-                                      className="p-2 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition"
+                                      className="p-2 bg-indigo-100 text-indigo-600 rounded-full hover:bg-indigo-200 transition"
                                       title="Edit"
                                     >
                                       <Edit2 className="w-4 h-4" />
                                     </button>
                                     <button
                                       onClick={() => handleDeleteMessage(message._id)}
-                                      className="p-2 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition"
+                                      className="p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition"
                                       title="Delete"
                                     >
                                       <Trash2 className="w-4 h-4" />
@@ -362,14 +348,14 @@ const ChatModal = ({ connection, onClose }) => {
           )}
           {isTyping && (
             <div className="flex items-start gap-3 mt-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${isDarkTheme ? 'bg-white text-black' : 'bg-black text-white'}`}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-indigo-100 text-indigo-600">
                 {otherUser.name?.charAt(0).toUpperCase()}
               </div>
-              <div className={`rounded-2xl px-5 py-3 ${isDarkTheme ? 'bg-gray-900 border-2 border-gray-800' : 'bg-white border-2 border-gray-200'}`} style={{ borderRadius: '20px 20px 20px 4px' }}>
+              <div className="rounded-2xl px-5 py-3 bg-white border border-gray-200 shadow-md" style={{ borderRadius: '20px 20px 20px 4px' }}>
                 <div className="flex gap-2">
-                  <div className={`w-2.5 h-2.5 rounded-full animate-bounce ${isDarkTheme ? 'bg-white' : 'bg-black'}`} style={{ animationDelay: '0ms' }}></div>
-                  <div className={`w-2.5 h-2.5 rounded-full animate-bounce ${isDarkTheme ? 'bg-white' : 'bg-black'}`} style={{ animationDelay: '150ms' }}></div>
-                  <div className={`w-2.5 h-2.5 rounded-full animate-bounce ${isDarkTheme ? 'bg-white' : 'bg-black'}`} style={{ animationDelay: '300ms' }}></div>
+                  <div className="w-2.5 h-2.5 rounded-full animate-bounce bg-indigo-600" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2.5 h-2.5 rounded-full animate-bounce bg-indigo-600" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2.5 h-2.5 rounded-full animate-bounce bg-indigo-600" style={{ animationDelay: '300ms' }}></div>
                 </div>
               </div>
             </div>
@@ -377,7 +363,7 @@ const ChatModal = ({ connection, onClose }) => {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSendMessage} className={`px-6 py-4 border-t ${isDarkTheme ? 'bg-black border-gray-800' : 'bg-white border-gray-200'}`}>
+        <form onSubmit={handleSendMessage} className="px-6 py-4 border-t bg-white border-gray-200">
           <div className="flex gap-3 items-center">
             <div className="flex-1 relative">
               <input
@@ -388,15 +374,11 @@ const ChatModal = ({ connection, onClose }) => {
                   handleTyping();
                 }}
                 placeholder="Type a message..."
-                className={`w-full px-5 py-4 pr-16 border-2 rounded-full focus:outline-none text-sm ${
-                  isDarkTheme
-                    ? 'bg-gray-900 border-gray-800 text-white placeholder-gray-600'
-                    : 'bg-gray-50 border-gray-300 text-black placeholder-gray-500'
-                }`}
+                className="w-full px-5 py-4 pr-16 border-2 rounded-full focus:outline-none text-sm bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-indigo-500"
                 maxLength="1000"
               />
               {newMessage.length > 900 && (
-                <span className={`absolute right-5 top-1/2 -translate-y-1/2 text-xs font-semibold ${isDarkTheme ? 'text-gray-600' : 'text-gray-500'}`}>
+                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-500">
                   {newMessage.length}/1000
                 </span>
               )}
@@ -404,10 +386,10 @@ const ChatModal = ({ connection, onClose }) => {
             <button
               type="submit"
               disabled={!newMessage.trim() || sending}
-              className={`w-14 h-14 rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${isDarkTheme ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'}`}
+              className="w-14 h-14 rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 shadow-lg"
             >
               {sending ? (
-                <div className={`animate-spin rounded-full h-5 w-5 border-b-2 ${isDarkTheme ? 'border-black' : 'border-white'}`}></div>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
               ) : (
                 <Send className="w-5 h-5" />
               )}
