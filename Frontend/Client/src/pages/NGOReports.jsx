@@ -14,7 +14,7 @@ import {
   IndianRupee
 } from 'lucide-react';
 import { generateReport, getReportSummary } from '../services/ngoReportService';
-// import { jsPDF } from 'jspdf'; // Comment this temporarily
+import { jsPDF } from 'jspdf';
 
 const NGOReports = () => {
   const navigate = useNavigate();
@@ -145,107 +145,106 @@ END OF REPORT
   };
 
   const downloadPDF = () => {
-    alert('PDF download temporarily disabled. Install jsPDF first: npm install jspdf');
-    // if (!report) return;
+    if (!report) return;
 
-    // const doc = new jsPDF();
-    // const pageWidth = doc.internal.pageSize.getWidth();
-    // const pageHeight = doc.internal.pageSize.getHeight();
-    // const margin = 20;
-    // const maxWidth = pageWidth - 2 * margin;
-    // let yPosition = margin;
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+    const maxWidth = pageWidth - 2 * margin;
+    let yPosition = margin;
 
-    // // Helper function to add text with word wrap
-    // const addText = (text, fontSize = 10, isBold = false) => {
-    //   doc.setFontSize(fontSize);
-    //   doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+    // Helper function to add text with word wrap
+    const addText = (text, fontSize = 10, isBold = false) => {
+      doc.setFontSize(fontSize);
+      doc.setFont('helvetica', isBold ? 'bold' : 'normal');
       
-    //   const lines = doc.splitTextToSize(text, maxWidth);
-    //   lines.forEach(line => {
-    //     if (yPosition > pageHeight - margin) {
-    //       doc.addPage();
-    //       yPosition = margin;
-    //     }
-    //     doc.text(line, margin, yPosition);
-    //     yPosition += fontSize * 0.5;
-    //   });
-    //   yPosition += 5;
-    // };
+      const lines = doc.splitTextToSize(text, maxWidth);
+      lines.forEach(line => {
+        if (yPosition > pageHeight - margin) {
+          doc.addPage();
+          yPosition = margin;
+        }
+        doc.text(line, margin, yPosition);
+        yPosition += fontSize * 0.5;
+      });
+      yPosition += 5;
+    };
 
-    // const addSection = (title, content = '') => {
-    //   yPosition += 5;
-    //   doc.setDrawColor(76, 175, 80);
-    //   doc.setLineWidth(0.5);
-    //   doc.line(margin, yPosition, pageWidth - margin, yPosition);
-    //   yPosition += 8;
-    //   addText(title, 14, true);
-    //   if (content) {
-    //     addText(content, 10, false);
-    //   }
-    // };
+    const addSection = (title, content = '') => {
+      yPosition += 5;
+      doc.setDrawColor(76, 175, 80);
+      doc.setLineWidth(0.5);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 8;
+      addText(title, 14, true);
+      if (content) {
+        addText(content, 10, false);
+      }
+    };
 
-    // // Title
-    // doc.setFillColor(76, 175, 80);
-    // doc.rect(0, 0, pageWidth, 30, 'F');
-    // doc.setTextColor(255, 255, 255);
-    // doc.setFontSize(20);
-    // doc.setFont('helvetica', 'bold');
-    // doc.text('NGO IMPACT REPORT', pageWidth / 2, 20, { align: 'center' });
+    // Title
+    doc.setFillColor(76, 175, 80);
+    doc.rect(0, 0, pageWidth, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('NGO IMPACT REPORT', pageWidth / 2, 20, { align: 'center' });
     
-    // yPosition = 40;
-    // doc.setTextColor(0, 0, 0);
+    yPosition = 40;
+    doc.setTextColor(0, 0, 0);
 
-    // // Organization & Period
-    // addText(`Organization: ${userInfo?.name || 'NGO'}`, 12, true);
-    // addText(`Report Period: ${report.period.toUpperCase()}`, 11, false);
-    // addText(`Date Range: ${report.dateRange.from} to ${report.dateRange.to}`, 10, false);
-    // addText(`Generated: ${new Date(report.generatedAt).toLocaleString('en-IN')}`, 9, false);
+    // Organization & Period
+    addText(`Organization: ${userInfo?.name || 'NGO'}`, 12, true);
+    addText(`Report Period: ${report.period.toUpperCase()}`, 11, false);
+    addText(`Date Range: ${report.dateRange.from} to ${report.dateRange.to}`, 10, false);
+    addText(`Generated: ${new Date(report.generatedAt).toLocaleString('en-IN')}`, 9, false);
 
-    // // Financial Overview
-    // addSection('FINANCIAL OVERVIEW');
-    // addText(`Total Donations Received: Rs ${report.statistics.donations.total.toLocaleString()}`);
-    // addText(`Number of Donations: ${report.statistics.donations.count}`);
-    // addText(`Unique Donors: ${report.statistics.donations.uniqueDonors}`);
-    // addText(`Average Donation: Rs ${report.statistics.donations.avgDonation.toLocaleString()}`);
+    // Financial Overview
+    addSection('FINANCIAL OVERVIEW');
+    addText(`Total Donations Received: Rs ${report.statistics.donations.total.toLocaleString()}`);
+    addText(`Number of Donations: ${report.statistics.donations.count}`);
+    addText(`Unique Donors: ${report.statistics.donations.uniqueDonors}`);
+    addText(`Average Donation: Rs ${report.statistics.donations.avgDonation.toLocaleString()}`);
 
-    // // Artisan Support
-    // addSection('ARTISAN SUPPORT');
-    // addText(`New Connections This Period: ${report.statistics.artisans.newConnections}`);
-    // addText(`Total Active Connections: ${report.statistics.artisans.totalConnections}`);
+    // Artisan Support
+    addSection('ARTISAN SUPPORT');
+    addText(`New Connections This Period: ${report.statistics.artisans.newConnections}`);
+    addText(`Total Active Connections: ${report.statistics.artisans.totalConnections}`);
     
-    // if (report.artisanList && report.artisanList.length > 0) {
-    //   yPosition += 5;
-    //   addText('Artisans Connected This Period:', 11, true);
-    //   report.artisanList.forEach((artisan, index) => {
-    //     addText(`${index + 1}. ${artisan.name}`);
-    //     addText(`   Email: ${artisan.email}`, 9);
-    //     addText(`   Connected: ${new Date(artisan.connectedAt).toLocaleDateString('en-IN')}`, 9);
-    //   });
-    // }
+    if (report.artisanList && report.artisanList.length > 0) {
+      yPosition += 5;
+      addText('Artisans Connected This Period:', 11, true);
+      report.artisanList.forEach((artisan, index) => {
+        addText(`${index + 1}. ${artisan.name}`);
+        addText(`   Email: ${artisan.email}`, 9);
+        addText(`   Connected: ${new Date(artisan.connectedAt).toLocaleDateString('en-IN')}`, 9);
+      });
+    }
 
-    // // Top Donors
-    // if (report.topDonors.length > 0) {
-    //   addSection('TOP DONORS');
-    //   report.topDonors.forEach((donor, index) => {
-    //     addText(`${index + 1}. ${donor.name}`);
-    //     addText(`   Total Contribution: Rs ${donor.totalAmount.toLocaleString()}`, 9);
-    //     addText(`   Number of Donations: ${donor.count}`, 9);
-    //     addText(`   Email: ${donor.email}`, 9);
-    //   });
-    // }
+    // Top Donors
+    if (report.topDonors.length > 0) {
+      addSection('TOP DONORS');
+      report.topDonors.forEach((donor, index) => {
+        addText(`${index + 1}. ${donor.name}`);
+        addText(`   Total Contribution: Rs ${donor.totalAmount.toLocaleString()}`, 9);
+        addText(`   Number of Donations: ${donor.count}`, 9);
+        addText(`   Email: ${donor.email}`, 9);
+      });
+    }
 
-    // // AI Insights
-    // addSection('AI-GENERATED INSIGHTS AND ANALYSIS');
-    // addText(report.aiInsights, 10, false);
+    // AI Insights
+    addSection('AI-GENERATED INSIGHTS AND ANALYSIS');
+    addText(report.aiInsights, 10, false);
 
-    // // Footer
-    // const footerY = pageHeight - 15;
-    // doc.setFontSize(8);
-    // doc.setTextColor(128, 128, 128);
-    // doc.text('CraftConnect - Empowering Artisans, Preserving Traditions', pageWidth / 2, footerY, { align: 'center' });
+    // Footer
+    const footerY = pageHeight - 15;
+    doc.setFontSize(8);
+    doc.setTextColor(128, 128, 128);
+    doc.text('CraftConnect - Empowering Artisans, Preserving Traditions', pageWidth / 2, footerY, { align: 'center' });
 
-    // // Save PDF
-    // doc.save(`NGO_Impact_Report_${report.period}_${new Date().toISOString().split('T')[0]}.pdf`);
+    // Save PDF
+    doc.save(`NGO_Impact_Report_${report.period}_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   return (

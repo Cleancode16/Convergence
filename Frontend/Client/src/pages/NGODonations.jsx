@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { ArrowLeft, Search, Wallet, Users, Download, Calendar, TrendingUp, IndianRupee } from 'lucide-react';
+import { ArrowLeft, Search, Wallet, Users, Download, Calendar, TrendingUp, IndianRupee, FileSpreadsheet } from 'lucide-react';
 import { motion } from 'framer-motion';
+import * as XLSX from 'xlsx';
 import { getNGODonations } from '../services/donationService';
 
 const NGODonations = () => {
@@ -111,6 +112,48 @@ const NGODonations = () => {
     a.click();
   };
 
+  const exportToExcel = () => {
+    // Prepare data for Excel
+    const data = filteredDonations.map(d => ({
+      'Date': new Date(d.createdAt).toLocaleDateString('en-IN'),
+      'Time': new Date(d.createdAt).toLocaleTimeString('en-IN'),
+      'Donor Name': d.donor?.name || 'Anonymous',
+      'Email': d.donor?.email || 'N/A',
+      'Amount (₹)': d.amount,
+      'Message': d.message || '-',
+      'Status': d.status,
+      'Transaction ID': d._id
+    }));
+
+    // Add summary statistics at the top
+    const summaryData = [
+      { 'Metric': 'Total Donations', 'Value': stats.totalAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) },
+      { 'Metric': 'Total Count', 'Value': filteredDonations.length },
+      { 'Metric': 'Unique Donors', 'Value': stats.uniqueDonors },
+      { 'Metric': 'Average Donation', 'Value': stats.averageDonation.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) },
+      { 'Metric': '', 'Value': '' }, // Empty row for spacing
+    ];
+
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Create summary worksheet
+    const summaryWs = XLSX.utils.json_to_sheet(summaryData, { skipHeader: false });
+    XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+    
+    // Create donations worksheet
+    const donationsWs = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, donationsWs, 'Donations');
+
+    // Auto-size columns
+    const maxWidth = data.reduce((w, r) => Math.max(w, JSON.stringify(r).length), 10);
+    const cols = Object.keys(data[0] || {}).map(() => ({ wch: 20 }));
+    donationsWs['!cols'] = cols;
+
+    // Save file
+    XLSX.writeFile(wb, `NGO_Donations_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
@@ -165,15 +208,26 @@ const NGODonations = () => {
                 </h1>
               </div>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 10px 20px -10px rgba(120, 59, 232, 0.4)" }}
-              whileTap={{ scale: 0.95 }}
-              onClick={exportToCSV}
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-purple-700 transition font-bold shadow-lg"
-            >
-              <Download className="w-5 h-5" />
-              Export CSV
-            </motion.button>
+            <div className="flex items-center gap-3">
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 20px -10px rgba(120, 59, 232, 0.4)" }}
+                whileTap={{ scale: 0.95 }}
+                onClick={exportToExcel}
+                className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-green-600 via-green-700 to-green-800 text-white rounded-xl hover:from-green-700 hover:via-green-800 hover:to-green-900 transition font-bold shadow-lg"
+              >
+                <FileSpreadsheet className="w-5 h-5" />
+                Export Excel
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 20px -10px rgba(120, 59, 232, 0.4)" }}
+                whileTap={{ scale: 0.95 }}
+                onClick={exportToCSV}
+                className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-purple-700 transition font-bold shadow-lg"
+              >
+                <Download className="w-5 h-5" />
+                Export CSV
+              </motion.button>
+            </div>
           </div>
         </div>
       </motion.nav>
