@@ -2,7 +2,8 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Upload, X, Image as ImageIcon, Video } from 'lucide-react';
+import { ArrowLeft, Upload, X, Image as ImageIcon, Video, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getProduct, updateProduct, uploadToCloudinary } from '../services/productService';
 
 const EditProduct = () => {
@@ -170,66 +171,110 @@ const EditProduct = () => {
 
   if (fetchLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="rounded-full h-12 w-12 border-4 border-[#783be8] border-t-transparent"
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-amber-600 shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <nav className="bg-white shadow-lg border-b-4 border-[#783be8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 h-16">
-            <button
+            <motion.button
               onClick={() => navigate('/my-products')}
-              className="text-white hover:text-gray-200 transition"
+              className="text-[#783be8] hover:text-purple-700 transition"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
               <ArrowLeft className="w-6 h-6" />
-            </button>
-            <h1 className="text-2xl font-bold text-white">Edit Product</h1>
+            </motion.button>
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/artisan-dashboard')}>
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Sparkles className="w-6 h-6 text-[#783be8]" />
+              </motion.div>
+              <motion.h1 
+                className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                CraftConnect
+              </motion.h1>
+            </div>
           </div>
         </div>
       </nav>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-white rounded-2xl shadow-xl p-6 border-2 border-purple-100"
+        >
           {error && (
-            <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg"
+            >
               <p className="text-sm text-red-700">{error}</p>
-            </div>
+            </motion.div>
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Title */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Product Title <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 {...register('title', { required: 'Title is required', maxLength: { value: 100, message: 'Title too long' } })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition"
                 placeholder="Enter product title"
               />
               {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
-            </div>
+            </motion.div>
 
             {/* Description */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description <span className="text-red-500">*</span>
               </label>
               <textarea
                 {...register('description', { required: 'Description is required', maxLength: { value: 2000, message: 'Description too long' } })}
                 rows="5"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 resize-none"
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] resize-none transition"
                 placeholder="Describe your product..."
               />
               {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>}
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-4"
+            >
               {/* Price */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -238,7 +283,7 @@ const EditProduct = () => {
                 <input
                   type="number"
                   {...register('price', { required: 'Price is required', min: { value: 0, message: 'Price must be positive' } })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition"
                   placeholder="0"
                   step="0.01"
                 />
@@ -252,7 +297,7 @@ const EditProduct = () => {
                 </label>
                 <select
                   {...register('category', { required: 'Category is required' })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] bg-white transition"
                 >
                   <option value="">Select category</option>
                   {categories.map(cat => (
@@ -270,15 +315,19 @@ const EditProduct = () => {
                 <input
                   type="number"
                   {...register('stock', { required: 'Stock is required', min: { value: 0, message: 'Stock must be positive' } })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition"
                   placeholder="0"
                 />
                 {errors.stock && <p className="mt-1 text-sm text-red-600">{errors.stock.message}</p>}
               </div>
-            </div>
+            </motion.div>
 
             {/* Media Upload */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Images/Videos (Max 5 files, 50MB each)
               </label>
@@ -287,36 +336,51 @@ const EditProduct = () => {
               {existingMedia.length > 0 && (
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 mb-2">Current Media:</p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      visible: { transition: { staggerChildren: 0.1 } }
+                    }}
+                    className="grid grid-cols-2 md:grid-cols-3 gap-4"
+                  >
                     {existingMedia.map((media, index) => (
-                      <div key={index} className="relative group">
+                      <motion.div
+                        key={index}
+                        variants={{
+                          hidden: { opacity: 0, scale: 0.8 },
+                          visible: { opacity: 1, scale: 1 }
+                        }}
+                        className="relative group"
+                      >
                         {media.type === 'image' ? (
                           <img
                             src={media.url}
                             alt={`Media ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-lg"
+                            className="w-full h-32 object-cover rounded-xl border-2 border-purple-200"
                           />
                         ) : (
-                          <div className="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center">
-                            <Video className="w-8 h-8 text-gray-500" />
+                          <div className="w-full h-32 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center border-2 border-purple-200">
+                            <Video className="w-8 h-8 text-[#783be8]" />
                           </div>
                         )}
-                        <button
+                        <motion.button
                           type="button"
                           onClick={() => removeExistingMedia(index)}
-                          className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+                          whileHover={{ rotate: 90, scale: 1.1 }}
+                          className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition shadow-lg"
                         >
                           <X className="w-4 h-4" />
-                        </button>
-                      </div>
+                        </motion.button>
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 </div>
               )}
               
               {/* Upload New Media */}
               {(existingMedia.length + mediaFiles.length) < 5 && (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-amber-500 transition">
+                <div className="border-2 border-dashed border-purple-300 rounded-xl p-6 text-center bg-gradient-to-br from-purple-50 to-pink-50 hover:border-[#783be8] transition">
                   <input
                     type="file"
                     accept="image/*,video/*"
@@ -326,8 +390,13 @@ const EditProduct = () => {
                     id="media-upload"
                   />
                   <label htmlFor="media-upload" className="cursor-pointer">
-                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">Click to upload new images or videos</p>
+                    <motion.div
+                      animate={{ y: [0, -10, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <Upload className="w-12 h-12 text-[#783be8] mx-auto mb-2" />
+                    </motion.div>
+                    <p className="text-sm text-gray-600 font-medium">Click to upload new images or videos</p>
                     <p className="text-xs text-gray-500 mt-1">
                       {existingMedia.length + mediaFiles.length}/5 files
                     </p>
@@ -337,55 +406,79 @@ const EditProduct = () => {
 
               {/* New Media Preview */}
               {mediaPreviews.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                <motion.div
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    visible: { transition: { staggerChildren: 0.1 } }
+                  }}
+                  className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4"
+                >
                   {mediaPreviews.map((preview, index) => (
-                    <div key={index} className="relative group">
+                    <motion.div
+                      key={index}
+                      variants={{
+                        hidden: { opacity: 0, scale: 0.8 },
+                        visible: { opacity: 1, scale: 1 }
+                      }}
+                      className="relative group"
+                    >
                       {preview.type === 'image' ? (
                         <img
                           src={preview.url}
                           alt={preview.name}
-                          className="w-full h-32 object-cover rounded-lg"
+                          className="w-full h-32 object-cover rounded-xl border-2 border-purple-200"
                         />
                       ) : (
-                        <div className="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center">
-                          <Video className="w-8 h-8 text-gray-500" />
+                        <div className="w-full h-32 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center border-2 border-purple-200">
+                          <Video className="w-8 h-8 text-[#783be8]" />
                         </div>
                       )}
-                      <button
+                      <motion.button
                         type="button"
                         onClick={() => removeNewMedia(index)}
-                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+                        whileHover={{ rotate: 90, scale: 1.1 }}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition shadow-lg"
                       >
                         <X className="w-4 h-4" />
-                      </button>
-                      <div className="absolute bottom-2 left-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">
+                      </motion.button>
+                      <div className="absolute bottom-2 left-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-2 py-1 rounded-lg text-xs font-semibold">
                         New
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               )}
-            </div>
+            </motion.div>
 
             {/* Submit Buttons */}
-            <div className="flex gap-4">
-              <button
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="flex gap-4"
+            >
+              <motion.button
                 type="button"
                 onClick={() => navigate('/my-products')}
-                className="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1 py-3 px-4 border-2 border-purple-200 rounded-xl text-gray-700 font-semibold hover:bg-purple-50 transition"
               >
                 Cancel
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 type="submit"
                 disabled={loading || uploading}
-                className="flex-1 py-3 px-4 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1 py-3 px-4 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {uploading ? 'Uploading media...' : loading ? 'Updating...' : 'Update Product'}
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           </form>
-        </div>
+        </motion.div>
       </main>
     </div>
   );

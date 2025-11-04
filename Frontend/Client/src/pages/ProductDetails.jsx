@@ -235,7 +235,7 @@ const ProductDetails = () => {
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           className="inline-block"
         >
-          <div className="w-16 h-16 border-4 border-teal-600 border-t-transparent rounded-full"></div>
+          <div className="w-16 h-16 border-4 border-[#783be8] border-t-transparent rounded-full"></div>
         </motion.div>
       </div>
     );
@@ -260,22 +260,36 @@ const ProductDetails = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
       {/* Header */}
-      <nav className="bg-gradient-to-r from-teal-600 to-blue-600 shadow-lg sticky top-0 z-50">
+      <motion.nav 
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white shadow-lg sticky top-0 z-50"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 h-16">
-            <button
+          <div className="flex items-center gap-4 h-20">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => navigate(-1)}
-              className="text-white hover:text-gray-200 transition"
+              className="text-gray-700 hover:text-[#783be8] transition p-2 rounded-lg hover:bg-purple-50"
             >
               <ArrowLeft className="w-6 h-6" />
-            </button>
+            </motion.button>
             <div className="flex items-center gap-3">
-              <ShoppingCart className="w-7 h-7 text-white" />
-              <h1 className="text-xl sm:text-2xl font-bold text-white">Product Details</h1>
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <ShoppingCart className="w-8 h-8 text-[#783be8]" />
+              </motion.div>
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
+                Product Details
+              </h1>
             </div>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -317,7 +331,7 @@ const ProductDetails = () => {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setSelectedMedia(index)}
                     className={`rounded-xl overflow-hidden border-3 transition shadow-md ${
-                      selectedMedia === index ? 'border-teal-600 ring-2 ring-teal-300' : 'border-gray-200 hover:border-teal-300'
+                      selectedMedia === index ? 'border-[#783be8] ring-2 ring-purple-300' : 'border-gray-200 hover:border-purple-300'
                     }`}
                   >
                     {media.type === 'image' ? (
@@ -327,8 +341,8 @@ const ProductDetails = () => {
                         className="w-full h-16 object-cover"
                       />
                     ) : (
-                      <div className="w-full h-16 bg-gradient-to-br from-teal-100 to-blue-100 flex items-center justify-center">
-                        <span className="text-xs text-teal-600 font-semibold">Video</span>
+                      <div className="w-full h-16 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center">
+                        <span className="text-xs text-[#783be8] font-semibold">Video</span>
                       </div>
                     )}
                   </motion.button>
@@ -359,7 +373,7 @@ const ProductDetails = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                <span className="text-sm bg-gradient-to-r from-teal-100 to-blue-100 text-teal-800 px-4 py-2 rounded-full font-semibold shadow-sm">
+                <span className="text-sm bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 text-[#783be8] px-4 py-2 rounded-full font-semibold shadow-sm border border-purple-200">
                   {formatCategory(product.category)}
                 </span>
                 <div className="flex items-center gap-2 text-gray-600">
@@ -376,7 +390,7 @@ const ProductDetails = () => {
               >
                 <p className="text-gray-600 text-sm font-medium">By {product.artisan?.name}</p>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Package className="w-4 h-4 text-teal-600" />
+                  <Package className="w-4 h-4 text-[#783be8]" />
                   <span className="font-medium">{product.stock} in stock</span>
                 </div>
               </motion.div>
@@ -387,13 +401,13 @@ const ProductDetails = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                <span className="text-4xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+                <span className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
                   {formatPrice(product.price)}
                 </span>
               </motion.div>
 
               <motion.div
-                className="mb-6 bg-gradient-to-br from-gray-50 to-teal-50 p-4 rounded-xl border-2 border-teal-100"
+                className="mb-6 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6 rounded-xl border-2 border-purple-100 shadow-sm"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
@@ -417,16 +431,16 @@ const ProductDetails = () => {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-12 h-12 border-2 border-gray-300 rounded-xl hover:bg-teal-50 hover:border-teal-500 transition font-bold text-lg"
+                      className="w-12 h-12 border-2 border-purple-300 rounded-xl hover:bg-purple-50 hover:border-[#783be8] transition font-bold text-lg shadow-sm"
                     >
                       -
                     </motion.button>
-                    <span className="text-2xl font-bold w-16 text-center">{quantity}</span>
+                    <span className="text-2xl font-bold w-16 text-center text-gray-900">{quantity}</span>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                      className="w-12 h-12 border-2 border-gray-300 rounded-xl hover:bg-teal-50 hover:border-teal-500 transition font-bold text-lg"
+                      className="w-12 h-12 border-2 border-purple-300 rounded-xl hover:bg-purple-50 hover:border-[#783be8] transition font-bold text-lg shadow-sm"
                     >
                       +
                     </motion.button>
@@ -463,7 +477,7 @@ const ProductDetails = () => {
                     whileTap={{ scale: 0.95 }}
                     onClick={handleBuy}
                     disabled={product.stock === 0}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-xl hover:from-teal-700 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-semibold shadow-lg"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-semibold shadow-lg"
                   >
                     <ShoppingCart className="w-5 h-5" />
                     {product.stock === 0 ? 'Out of Stock' : 'Buy Now'}
@@ -490,7 +504,7 @@ const ProductDetails = () => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.9 }}
                 >
-                  Total: <span className="text-teal-600">{formatPrice(product.price * quantity)}</span>
+                  Total: <span className="bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent font-bold">{formatPrice(product.price * quantity)}</span>
                 </motion.p>
               )}
             </div>
@@ -507,9 +521,13 @@ const ProductDetails = () => {
             variants={fadeInUp}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl">
-                <Sparkles className="w-8 h-8 text-purple-600" />
-              </div>
+              <motion.div 
+                className="p-3 bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-xl"
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Sparkles className="w-8 h-8 text-[#783be8]" />
+              </motion.div>
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">You Might Also Like</h2>
                 <p className="text-sm text-gray-600">AI-powered recommendations based on your preferences</p>
@@ -518,7 +536,13 @@ const ProductDetails = () => {
 
             {loadingRecommendations ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="inline-block"
+                >
+                  <div className="w-8 h-8 border-4 border-[#783be8] border-t-transparent rounded-full"></div>
+                </motion.div>
               </div>
             ) : (
               <motion.div 
@@ -531,17 +555,21 @@ const ProductDetails = () => {
                   <motion.div
                     key={product._id}
                     variants={scaleIn}
-                    whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                    whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgba(120, 59, 232, 0.2)" }}
                     onClick={() => navigate(`/product/${product._id}`)}
-                    className="bg-gradient-to-br from-gray-50 to-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition cursor-pointer group relative"
+                    className="bg-gradient-to-br from-white to-purple-50 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition cursor-pointer group relative border border-purple-100"
                   >
                     {/* Recommended Badge */}
-                    <div className="absolute top-1 left-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold px-2 py-1 rounded-full z-10 flex items-center gap-1 shadow-lg">
+                    <motion.div 
+                      className="absolute top-1 left-1 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white text-xs font-bold px-2 py-1 rounded-full z-10 flex items-center gap-1 shadow-lg"
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
                       <Star className="w-2.5 h-2.5" fill="currentColor" />
                       Top Pick
-                    </div>
+                    </motion.div>
 
-                    <div className="relative h-32 bg-gray-200">
+                    <div className="relative h-32 bg-gray-200 overflow-hidden">
                       {product.media && product.media.length > 0 && product.media[0].type === 'image' ? (
                         <img
                           src={product.media[0].url}
@@ -549,8 +577,8 @@ const ProductDetails = () => {
                           className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
-                          <Sparkles className="w-8 h-8 text-gray-400" />
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100">
+                          <Sparkles className="w-8 h-8 text-[#783be8]" />
                         </div>
                       )}
                     </div>
@@ -558,7 +586,7 @@ const ProductDetails = () => {
                       <h3 className="text-xs font-semibold text-gray-900 line-clamp-1 mb-1">
                         {product.title}
                       </h3>
-                      <p className="text-sm font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+                      <p className="text-sm font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
                         {formatPrice(product.price)}
                       </p>
                     </div>
@@ -578,9 +606,13 @@ const ProductDetails = () => {
           variants={fadeInUp}
         >
           <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-xl">
-              <Package className="w-6 h-6 text-indigo-600" />
-            </div>
+            <motion.div 
+              className="p-2 bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-xl"
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Package className="w-6 h-6 text-[#783be8]" />
+            </motion.div>
             Comments ({comments.length})
           </h2>
 
@@ -599,7 +631,7 @@ const ProductDetails = () => {
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Write a comment..."
-                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition outline-none"
+                  className="flex-1 px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition outline-none"
                   maxLength="500"
                 />
                 <motion.button
@@ -607,7 +639,7 @@ const ProductDetails = () => {
                   whileTap={{ scale: 0.95 }}
                   type="submit"
                   disabled={!newComment.trim()}
-                  className="px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-xl hover:from-teal-700 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-semibold shadow-lg"
+                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-semibold shadow-lg"
                 >
                   <Send className="w-4 h-4" />
                   Post
@@ -635,14 +667,14 @@ const ProductDetails = () => {
                       type="text"
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}
-                      className="flex-1 px-3 py-2 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                      className="flex-1 px-3 py-2 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] outline-none"
                       autoFocus
                     />
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleEditComment(comment._id)}
-                      className="px-4 py-2 bg-teal-600 text-white rounded-xl hover:bg-teal-700 font-semibold"
+                      className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-[#783be8] text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 font-semibold shadow-md"
                     >
                       Save
                     </motion.button>
@@ -682,7 +714,7 @@ const ProductDetails = () => {
                               setEditingComment(comment._id);
                               setEditContent(comment.content);
                             }}
-                            className="p-2 text-gray-600 hover:text-teal-600 transition"
+                            className="p-2 text-gray-600 hover:text-[#783be8] transition rounded-lg hover:bg-purple-50"
                           >
                             <Edit2 className="w-4 h-4" />
                           </motion.button>
@@ -690,7 +722,7 @@ const ProductDetails = () => {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleDeleteComment(comment._id)}
-                            className="p-2 text-gray-600 hover:text-red-600 transition"
+                            className="p-2 text-gray-600 hover:text-red-600 transition rounded-lg hover:bg-red-50"
                           >
                             <Trash2 className="w-4 h-4" />
                           </motion.button>
@@ -708,21 +740,24 @@ const ProductDetails = () => {
       {/* Buy Modal */}
       {showBuyModal && (
         <motion.div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div 
             className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0, y: 50 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 50 }}
+            transition={{ type: "spring", damping: 20 }}
           >
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-              <MapPin className="w-6 h-6 text-teal-600" />
-              Shipping Address
-            </h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
+                <MapPin className="w-6 h-6 text-[#783be8]" />
+                Shipping Address
+              </h3>
+            </div>
             
             <div className="space-y-4 mb-6">
               <input
@@ -730,55 +765,60 @@ const ProductDetails = () => {
                 placeholder="Street Address"
                 value={shippingAddress.street}
                 onChange={(e) => setShippingAddress({...shippingAddress, street: e.target.value})}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] outline-none transition"
               />
               <input
                 type="text"
                 placeholder="City"
                 value={shippingAddress.city}
                 onChange={(e) => setShippingAddress({...shippingAddress, city: e.target.value})}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] outline-none transition"
               />
               <input
                 type="text"
                 placeholder="State"
                 value={shippingAddress.state}
                 onChange={(e) => setShippingAddress({...shippingAddress, state: e.target.value})}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] outline-none transition"
               />
               <input
                 type="text"
                 placeholder="Pincode"
                 value={shippingAddress.pincode}
                 onChange={(e) => setShippingAddress({...shippingAddress, pincode: e.target.value})}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] outline-none transition"
                 maxLength="6"
               />
             </div>
 
-            <div className="mb-6 p-6 bg-gradient-to-br from-teal-50 to-blue-50 rounded-xl border-2 border-teal-100">
+            <motion.div 
+              className="mb-6 p-6 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-xl border-2 border-purple-100 shadow-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
               <p className="text-sm text-gray-600 font-semibold mb-2">Order Summary</p>
               <p className="text-xl font-bold text-gray-900 mb-1">{product.title}</p>
               <p className="text-sm text-gray-600 mb-3">Quantity: {quantity}</p>
-              <p className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+              <p className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
                 Total: {formatPrice(product.price * quantity)}
               </p>
-            </div>
+            </motion.div>
 
             <div className="flex gap-3">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowBuyModal(false)}
-                className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold"
+                className="flex-1 px-4 py-3 border-2 border-purple-300 text-gray-700 rounded-xl hover:bg-purple-50 font-semibold transition"
               >
                 Cancel
               </motion.button>
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 25px -5px rgba(120, 59, 232, 0.4)" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={confirmPurchase}
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-xl hover:from-teal-700 hover:to-blue-700 font-semibold shadow-lg"
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-purple-700 font-semibold shadow-lg transition"
               >
                 Confirm Purchase
               </motion.button>

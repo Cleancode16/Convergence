@@ -1,7 +1,8 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Users, Wallet, FileText, BookOpen, Calendar, TrendingUp, Settings, LogOut, Building2, IndianRupee } from 'lucide-react';
+import { Users, Wallet, FileText, BookOpen, Calendar, TrendingUp, Settings, LogOut, Building2, IndianRupee, Heart, ArrowRight, Menu, ChevronDown, Sparkles, X } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { logout } from '../redux/actions/authActions';
 import { getProfileStatus } from '../services/ngoService';
 import { getNGODonations } from '../services/donationService';
@@ -12,13 +13,44 @@ const NgoDashboard = () => {
   const navigate = useNavigate();
   const [profileComplete, setProfileComplete] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState(null); // Add this line
+  const [profile, setProfile] = useState(null);
   const [donations, setDonations] = useState([]);
   const [donationStats, setDonationStats] = useState({
     totalAmount: 0,
     uniqueDonors: 0,
     averageDonation: 0,
   });
+  const [showQuickNav, setShowQuickNav] = useState(false);
+
+  // Animation Variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.4, ease: "easeOut" }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
 
   useEffect(() => {
     const checkProfileStatus = async () => {
@@ -29,7 +61,7 @@ const NgoDashboard = () => {
             navigate('/ngo-profile-setup');
           } else {
             setProfileComplete(true);
-            setProfile(data.data); // Add this line to store profile data
+            setProfile(data.data);
           }
         }
       } catch (error) {
@@ -50,7 +82,6 @@ const NgoDashboard = () => {
           averageDonation: 0,
         });
         
-        // Update profile with latest stats
         if (profile) {
           setProfile(prev => ({
             ...prev,
@@ -78,12 +109,62 @@ const NgoDashboard = () => {
     navigate('/ngo-profile-setup');
   };
 
+  const dashboardSections = [
+    {
+      id: 'browse-artisans',
+      title: 'Connect with Artisans',
+      description: 'Discover talented artisans across India. Build meaningful partnerships and support traditional crafts by connecting with skilled craftspeople.',
+      icon: Users,
+      gradient: 'from-purple-600 to-indigo-600',
+      image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800',
+      route: '/browse-artisans',
+      imagePosition: 'left'
+    },
+    {
+      id: 'sponsors',
+      title: 'Corporate Partnerships',
+      description: 'Connect with corporate sponsors for CSR funding. Find companies aligned with your mission and secure funding for artisan welfare programs.',
+      icon: Building2,
+      gradient: 'from-blue-600 to-cyan-600',
+      image: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=800',
+      route: '/ngo-sponsors',
+      imagePosition: 'right'
+    },
+    {
+      id: 'reports',
+      title: 'AI-Powered Reports',
+      description: 'Generate comprehensive impact reports with AI. Track your organization\'s progress, showcase achievements, and demonstrate transparency.',
+      icon: FileText,
+      gradient: 'from-indigo-600 to-purple-600',
+      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
+      route: '/ngo-reports',
+      imagePosition: 'left',
+      badge: 'AI Powered'
+    },
+    {
+      id: 'donations',
+      title: 'Donation Management',
+      description: 'Track and manage all donations efficiently. View donor information, donation history, and generate financial reports seamlessly.',
+      icon: Wallet,
+      gradient: 'from-green-600 to-teal-600',
+      image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800',
+      route: '/ngo-donations',
+      imagePosition: 'right'
+    }
+  ];
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="inline-block"
+          >
+            <div className="w-16 h-16 border-4 border-[#783be8] border-t-transparent rounded-full"></div>
+          </motion.div>
+          <p className="mt-6 text-gray-600 text-lg font-medium">Loading...</p>
         </div>
       </div>
     );
@@ -94,247 +175,327 @@ const NgoDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-teal-600 shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      {/* Fixed Navbar */}
+      <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-2xl font-bold text-white">NGO Dashboard</h1>
-            <div className="flex gap-3">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/ngo-dashboard')}>
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Heart className="w-8 h-8 text-[#783be8]" fill="#783be8" />
+              </motion.div>
+              <motion.h1 
+                className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                CraftConnect
+              </motion.h1>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              {/* Desktop Quick Nav Dropdown */}
+              <div className="hidden lg:block relative">
+                <button
+                  onClick={() => setShowQuickNav(!showQuickNav)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 rounded-lg hover:from-indigo-200 hover:to-purple-200 transition font-semibold border border-indigo-200"
+                >
+                  <Menu className="w-5 h-5" />
+                  <span>Quick Access</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showQuickNav ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showQuickNav && (
+                  <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+                    <div className="p-3 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-200">
+                      <p className="text-sm font-semibold text-gray-700">Navigate to:</p>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {dashboardSections.map((section) => {
+                        const Icon = section.icon;
+                        return (
+                          <button
+                            key={section.id}
+                            onClick={() => {
+                              navigate(section.route);
+                              setShowQuickNav(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition text-left border-b border-gray-100 last:border-b-0"
+                          >
+                            <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${section.gradient} flex items-center justify-center flex-shrink-0`}>
+                              <Icon className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold text-gray-900 text-sm">{section.title}</p>
+                                {section.badge && (
+                                  <span className="text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full">
+                                    {section.badge}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500 truncate">{section.description.substring(0, 50)}...</p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Quick Nav Button */}
               <button
+                onClick={() => setShowQuickNav(!showQuickNav)}
+                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 rounded-lg hover:from-indigo-200 hover:to-purple-200 transition border border-indigo-200"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleProfileEdit}
-                className="flex items-center gap-2 px-4 py-2 bg-white text-teal-600 rounded-lg hover:bg-gray-100 transition"
+                className="flex items-center gap-2 px-4 py-2 border-2 border-purple-300 text-[#783be8] rounded-xl hover:bg-purple-50 transition font-semibold shadow-sm"
               >
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">Edit Profile</span>
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 bg-white text-teal-600 rounded-lg hover:bg-gray-100 transition"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-purple-700 transition font-semibold shadow-lg"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">Logout</span>
-              </button>
+              </motion.button>
             </div>
           </div>
+
+          {/* Mobile Quick Nav Dropdown */}
+          {showQuickNav && (
+            <div className="lg:hidden bg-white border-t border-gray-200">
+              <div className="max-w-7xl mx-auto px-4 py-3 max-h-96 overflow-y-auto">
+                <div className="grid grid-cols-1 gap-2">
+                  {dashboardSections.map((section) => {
+                    const Icon = section.icon;
+                    return (
+                      <button
+                        key={section.id}
+                        onClick={() => {
+                          navigate(section.route);
+                          setShowQuickNav(false);
+                        }}
+                        className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-gray-50 to-indigo-50 hover:from-indigo-100 hover:to-purple-100 rounded-lg transition text-left"
+                      >
+                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${section.gradient} flex items-center justify-center flex-shrink-0`}>
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-gray-900 text-sm">{section.title}</p>
+                            {section.badge && (
+                              <span className="text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full">
+                                {section.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 truncate">{section.description.substring(0, 40)}...</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Welcome, {userInfo?.name}!</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-teal-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Active Programs</p>
-              <p className="text-3xl font-bold text-teal-600">12</p>
-            </div>
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Artisans Supported</p>
-              <p className="text-3xl font-bold text-blue-600">156</p>
-            </div>
-            <div className="bg-green-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Funds Raised</p>
-              <p className="text-3xl font-bold text-green-600">₹2.4L</p>
+      {/* Main Content */}
+      <div className="pt-20">
+        {/* Stats Overview Section - First */}
+        <section className="w-full bg-white py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="w-full">
+              {/* Welcome Section */}
+              <motion.div 
+                className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-lg p-6 mb-6 border border-purple-100"
+                initial="hidden"
+                animate="visible"
+                variants={fadeInUp}
+              >
+                <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent mb-4">
+                  Welcome, {userInfo?.name}!
+                </h2>
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                  initial="hidden"
+                  animate="visible"
+                  variants={staggerContainer}
+                >
+                  <motion.div 
+                    variants={scaleIn}
+                    whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgba(120, 59, 232, 0.2)" }}
+                    className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-5 rounded-xl border-2 border-purple-100 shadow-sm"
+                  >
+                    <p className="text-sm font-semibold text-gray-600 mb-1">Active Programs</p>
+                    <p className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">12</p>
+                  </motion.div>
+                  <motion.div 
+                    variants={scaleIn}
+                    whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgba(59, 130, 246, 0.2)" }}
+                    className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border-2 border-blue-100 shadow-sm"
+                  >
+                    <p className="text-sm font-semibold text-gray-600 mb-1">Artisans Supported</p>
+                    <p className="text-3xl font-bold text-blue-600">156</p>
+                  </motion.div>
+                  <motion.div 
+                    variants={scaleIn}
+                    whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgba(34, 197, 94, 0.2)" }}
+                    className="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl border-2 border-green-100 shadow-sm"
+                  >
+                    <p className="text-sm font-semibold text-gray-600 mb-1">Funds Raised</p>
+                    <p className="text-3xl font-bold text-green-600">₹2.4L</p>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+
+              {/* Donation Statistics */}
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+                initial="hidden"
+                animate="visible"
+                variants={staggerContainer}
+              >
+                <motion.div 
+                  variants={fadeInUp}
+                  whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(120, 59, 232, 0.3)" }}
+                  className="bg-gradient-to-br from-indigo-500 via-[#783be8] to-purple-600 rounded-xl shadow-lg p-5 text-white border border-purple-200"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <IndianRupee className="w-8 h-8 opacity-80" />
+                    <TrendingUp className="w-5 h-5" />
+                  </div>
+                  <p className="text-white/80 text-sm font-medium mb-1">Total Funds Received</p>
+                  <p className="text-2xl md:text-3xl font-bold">₹{donationStats?.totalAmount?.toLocaleString() || 0}</p>
+                </motion.div>
+
+                <motion.div 
+                  variants={fadeInUp}
+                  whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(34, 197, 94, 0.3)" }}
+                  className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg p-5 text-white border border-green-200"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <Users className="w-8 h-8 opacity-80" />
+                    <Heart className="w-5 h-5" />
+                  </div>
+                  <p className="text-white/80 text-sm font-medium mb-1">Total Donors</p>
+                  <p className="text-2xl md:text-3xl font-bold">{donationStats?.totalDonors || 0}</p>
+                </motion.div>
+
+                <motion.div 
+                  variants={fadeInUp}
+                  whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(59, 130, 246, 0.3)" }}
+                  className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg p-5 text-white border border-blue-200"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <TrendingUp className="w-8 h-8 opacity-80" />
+                    <IndianRupee className="w-5 h-5" />
+                  </div>
+                  <p className="text-white/80 text-sm font-medium mb-1">Average Donation</p>
+                  <p className="text-2xl md:text-3xl font-bold">₹{donationStats?.averageDonation?.toFixed(0) || 0}</p>
+                </motion.div>
+
+                <motion.div 
+                  variants={fadeInUp}
+                  whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(236, 72, 153, 0.3)" }}
+                  className="bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl shadow-lg p-5 text-white border border-pink-200"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <Calendar className="w-8 h-8 opacity-80" />
+                    <Heart className="w-5 h-5" />
+                  </div>
+                  <p className="text-white/80 text-sm font-medium mb-1">Total Donations</p>
+                  <p className="text-2xl md:text-3xl font-bold">{donationStats?.totalDonations || 0}</p>
+                </motion.div>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div
-            onClick={() => navigate('/browse-artisans')}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
-          >
-            <div className="flex items-center justify-center w-12 h-12 bg-teal-100 rounded-lg mb-4">
-              <Users className="w-6 h-6 text-teal-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Browse Artisans</h3>
-            <p className="text-gray-600 text-sm">Find and connect with artisans</p>
-          </div>
-
-          <div
-            onClick={() => navigate('/ngo-sponsors')}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
-          >
-            <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4">
-              <Building2 className="w-6 h-6 text-blue-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Corporate Sponsors</h3>
-            <p className="text-gray-600 text-sm">Find CSR funding opportunities</p>
-          </div>
-
-          <div
-            onClick={() => navigate('/ngo-reports')}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
-          >
-            <div className="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-lg mb-4">
-              <FileText className="w-6 h-6 text-indigo-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">AI Reports</h3>
-            <p className="text-gray-600 text-sm">Generate impact reports</p>
-          </div>
-        </div>
-
-        {/* Donation Stats Cards - MOVE HERE */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <Wallet className="w-8 h-8" />
-              <TrendingUp className="w-5 h-5 opacity-75" />
-            </div>
-            <p className="text-green-100 text-sm font-medium">Total Funds Raised</p>
-            <p className="text-3xl font-bold mt-2">₹{donationStats.totalAmount?.toLocaleString() || 0}</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <Users className="w-8 h-8" />
-              <TrendingUp className="w-5 h-5 opacity-75" />
-            </div>
-            <p className="text-blue-100 text-sm font-medium">Total Donors</p>
-            <p className="text-3xl font-bold mt-2">{donationStats.uniqueDonors || 0}</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <IndianRupee className="w-8 h-8" />
-            </div>
-            <p className="text-purple-100 text-sm font-medium">Average Donation</p>
-            <p className="text-3xl font-bold mt-2">₹{Math.round(donationStats.averageDonation || 0).toLocaleString()}</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <Calendar className="w-8 h-8" />
-            </div>
-            <p className="text-teal-100 text-sm font-medium">Total Donations</p>
-            <p className="text-3xl font-bold mt-2">{donations.length}</p>
-          </div>
-        </div>
-
-        {/* Donations Table */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="px-6 py-4 bg-gradient-to-r from-green-600 to-teal-600 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-              <Wallet className="w-6 h-6" />
-              Recent Donations
-            </h2>
-            <button
-              onClick={() => navigate('/ngo-donations')}
-              className="px-4 py-2 bg-white text-green-600 rounded-lg hover:bg-green-50 transition font-semibold text-sm"
+        {/* Feature Sections */}
+        {dashboardSections.map((section, index) => {
+          const Icon = section.icon;
+          return (
+            <section
+              key={section.id}
+              className="w-full bg-white py-8 border-t border-gray-100"
             >
-              View All
-            </button>
-          </div>
-
-          {donations.length === 0 ? (
-            <div className="text-center py-16">
-              <Wallet className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 text-lg">No donations received yet</p>
-              <p className="text-gray-400 text-sm mt-2">Share your NGO profile to start receiving donations</p>
-            </div>
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Donor
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Message
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {donations.slice(0, 5).map((donation) => (
-                      <tr key={donation._id} className="hover:bg-gray-50 transition">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                              <Users className="w-5 h-5 text-green-600" />
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
-                                {donation.donor?.name || 'Anonymous'}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{donation.donor?.email || 'N/A'}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-bold text-green-600">
-                            ₹{donation.amount.toLocaleString()}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {new Date(donation.createdAt).toLocaleDateString('en-IN', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {new Date(donation.createdAt).toLocaleTimeString('en-IN', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 max-w-xs truncate">
-                            {donation.message || '-'}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            donation.status === 'completed'
-                              ? 'bg-green-100 text-green-800'
-                              : donation.status === 'pending'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {donation.status.charAt(0).toUpperCase() + donation.status.slice(1)}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination Footer */}
-              {donations.length > 0 && (
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-700">
-                      Showing <span className="font-medium">1</span> to <span className="font-medium">{Math.min(5, donations.length)}</span> of{' '}
-                      <span className="font-medium">{donations.length}</span> donations
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center ${section.imagePosition === 'right' ? 'lg:grid-flow-dense' : ''}`}>
+                  
+                  {/* Text Content */}
+                  <div className={`flex flex-col justify-center space-y-4 ${section.imagePosition === 'right' ? 'lg:col-start-1' : ''}`}>
+                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${section.gradient} flex items-center justify-center shadow-lg`}>
+                      <Icon className="w-7 h-7 text-white" />
                     </div>
-                    <div className="text-sm text-gray-500">
-                      Total Raised: <span className="font-bold text-green-600">₹{donationStats.totalAmount?.toLocaleString() || 0}</span>
+                    
+                    {section.badge && (
+                      <span className="inline-flex items-center gap-2 text-sm font-bold text-amber-600 bg-amber-100 px-3 py-1.5 rounded-full w-fit">
+                        <Sparkles className="w-4 h-4" />
+                        {section.badge}
+                      </span>
+                    )}
+
+                    <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight">
+                      {section.title}
+                    </h2>
+                    
+                    <p className="text-base lg:text-lg text-gray-700 leading-relaxed">
+                      {section.description}
+                    </p>
+
+                    <button
+                      onClick={() => navigate(section.route)}
+                      className={`group inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r ${section.gradient} text-white rounded-xl hover:shadow-xl transition-all duration-300 text-base font-semibold w-fit`}
+                    >
+                      <span>Explore Now</span>
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+
+                  {/* Image */}
+                  <div className={`relative group ${section.imagePosition === 'right' ? 'lg:col-start-2' : ''}`}>
+                    <div className="relative h-[280px] lg:h-[340px] rounded-2xl overflow-hidden shadow-xl">
+                      <img
+                        src={section.image}
+                        alt={section.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${section.gradient} opacity-20 group-hover:opacity-30 transition-opacity`}></div>
                     </div>
                   </div>
                 </div>
-              )}
-            </>
-          )}
-        </div>
-      </main>
+              </div>
+            </section>
+          );
+        })}
+      </div>
+
+      {/* Click outside to close dropdown */}
+      {showQuickNav && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setShowQuickNav(false)}
+        />
+      )}
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ArrowLeft, Search, Wallet, Users, Download, Calendar, TrendingUp, IndianRupee } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { getNGODonations } from '../services/donationService';
 
 const NGODonations = () => {
@@ -16,6 +17,36 @@ const NGODonations = () => {
     uniqueDonors: 0,
     averageDonation: 0,
   });
+
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 60 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
 
   useEffect(() => {
     fetchDonations();
@@ -82,132 +113,238 @@ const NGODonations = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-center"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="inline-block"
+          >
+            <div className="w-16 h-16 border-4 border-[#783be8] border-t-transparent rounded-full"></div>
+          </motion.div>
+          <p className="mt-4 text-gray-700 font-semibold">Loading donations...</p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
       {/* Header */}
-      <nav className="bg-gradient-to-r from-green-600 to-teal-600 shadow-lg">
+      <motion.nav 
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white shadow-lg border-b border-purple-100 sticky top-0 z-50"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-4">
-              <button onClick={() => navigate(-1)} className="text-white hover:text-gray-200 transition">
+              <motion.button 
+                whileHover={{ scale: 1.1, x: -5 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => navigate(-1)} 
+                className="text-[#783be8] hover:text-purple-700 transition p-2 rounded-lg hover:bg-purple-50"
+              >
                 <ArrowLeft className="w-6 h-6" />
-              </button>
-              <h1 className="text-2xl font-bold text-white">All Donations</h1>
+              </motion.button>
+              <div className="flex items-center gap-3">
+                <motion.div
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Wallet className="w-8 h-8 text-[#783be8]" />
+                </motion.div>
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
+                  All Donations
+                </h1>
+              </div>
             </div>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05, boxShadow: "0 10px 20px -10px rgba(120, 59, 232, 0.4)" }}
+              whileTap={{ scale: 0.95 }}
               onClick={exportToCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-white text-green-600 rounded-lg hover:bg-green-50 transition font-semibold"
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-purple-700 transition font-bold shadow-lg"
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-5 h-5" />
               Export CSV
-            </button>
+            </motion.button>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
+          <motion.div 
+            variants={scaleIn}
+            whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(120, 59, 232, 0.3)" }}
+            className="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-[#783be8]"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Raised</p>
-                <p className="text-3xl font-bold text-green-600">₹{stats.totalAmount?.toLocaleString() || 0}</p>
+                <p className="text-sm text-gray-600 mb-2 font-semibold">Total Raised</p>
+                <p className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
+                  ₹{stats.totalAmount?.toLocaleString() || 0}
+                </p>
               </div>
-              <Wallet className="w-12 h-12 text-green-500" />
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Wallet className="w-12 h-12 md:w-14 md:h-14 text-[#783be8]" />
+              </motion.div>
             </div>
-          </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+          </motion.div>
+          
+          <motion.div 
+            variants={scaleIn}
+            whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(59, 130, 246, 0.3)" }}
+            className="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-blue-500"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Donors</p>
-                <p className="text-3xl font-bold text-blue-600">{stats.uniqueDonors || 0}</p>
+                <p className="text-sm text-gray-600 mb-2 font-semibold">Total Donors</p>
+                <p className="text-3xl md:text-4xl font-extrabold text-blue-600">{stats.uniqueDonors || 0}</p>
               </div>
-              <Users className="w-12 h-12 text-blue-500" />
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Users className="w-12 h-12 md:w-14 md:h-14 text-blue-500" />
+              </motion.div>
             </div>
-          </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+          </motion.div>
+          
+          <motion.div 
+            variants={scaleIn}
+            whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(168, 85, 247, 0.3)" }}
+            className="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-purple-500"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Average Donation</p>
-                <p className="text-3xl font-bold text-purple-600">₹{Math.round(stats.averageDonation || 0).toLocaleString()}</p>
+                <p className="text-sm text-gray-600 mb-2 font-semibold">Average Donation</p>
+                <p className="text-3xl md:text-4xl font-extrabold text-purple-600">₹{Math.round(stats.averageDonation || 0).toLocaleString()}</p>
               </div>
-              <TrendingUp className="w-12 h-12 text-purple-500" />
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <TrendingUp className="w-12 h-12 md:w-14 md:h-14 text-purple-500" />
+              </motion.div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Search Bar */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-purple-100"
+        >
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#783be8] w-5 h-5" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by donor name, email, message, or amount..."
-              className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="w-full pl-12 pr-4 py-4 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition-all text-gray-700 font-medium"
             />
           </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Found <span className="font-bold text-green-600">{filteredDonations.length}</span> donation(s)
+          <p className="text-sm text-gray-600 mt-3 font-medium">
+            Found <span className="font-bold text-[#783be8] text-lg">{filteredDonations.length}</span> donation(s)
           </p>
-        </div>
+        </motion.div>
 
         {/* Donations Table */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-purple-100"
+        >
           {filteredDonations.length === 0 ? (
-            <div className="text-center py-16">
-              <Wallet className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 text-lg">No donations found</p>
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-20 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50"
+            >
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Wallet className="w-20 h-20 text-purple-300 mx-auto mb-6" />
+              </motion.div>
+              <p className="text-gray-700 text-xl font-semibold mb-2">No donations found</p>
+              <p className="text-gray-500">Try adjusting your search criteria</p>
+            </motion.div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-green-50 to-teal-50">
+              <table className="min-w-full divide-y divide-purple-100">
+                <thead className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Donor</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Email</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Amount</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Message</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">Donor</th>
+                    <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">Email</th>
+                    <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">Amount</th>
+                    <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">Message</th>
+                    <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">Status</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredDonations.map((donation) => (
-                    <tr key={donation._id} className="hover:bg-green-50 transition">
+                <tbody className="bg-white divide-y divide-purple-50">
+                  {filteredDonations.map((donation, index) => (
+                    <motion.tr 
+                      key={donation._id} 
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ backgroundColor: "#faf5ff", scale: 1.01 }}
+                      className="transition-all cursor-pointer"
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                            <Users className="w-5 h-5 text-green-600" />
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{donation.donor?.name || 'Anonymous'}</div>
+                        <div className="flex items-center gap-3">
+                          <motion.div 
+                            whileHover={{ scale: 1.1, rotate: 5 }}
+                            className="w-12 h-12 bg-gradient-to-br from-indigo-500 via-[#783be8] to-purple-600 rounded-full flex items-center justify-center shadow-lg"
+                          >
+                            <span className="text-white font-bold text-lg">
+                              {donation.donor?.name?.charAt(0) || 'A'}
+                            </span>
+                          </motion.div>
+                          <div>
+                            <div className="text-sm font-bold text-gray-900">{donation.donor?.name || 'Anonymous'}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{donation.donor?.email || 'N/A'}</div>
+                        <div className="text-sm text-gray-700 font-medium">{donation.donor?.email || 'N/A'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-base font-bold text-green-600">₹{donation.amount.toLocaleString()}</div>
+                        <div className="text-lg font-extrabold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
+                          ₹{donation.amount.toLocaleString()}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-gray-900 font-semibold">
                           {new Date(donation.createdAt).toLocaleDateString('en-IN', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
                           })}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 font-medium">
                           {new Date(donation.createdAt).toLocaleTimeString('en-IN', {
                             hour: '2-digit',
                             minute: '2-digit',
@@ -215,26 +352,29 @@ const NGODonations = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 max-w-xs">{donation.message || '-'}</div>
+                        <div className="text-sm text-gray-700 max-w-xs font-medium">{donation.message || '-'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          donation.status === 'completed'
-                            ? 'bg-green-100 text-green-800'
-                            : donation.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
+                        <motion.span 
+                          whileHover={{ scale: 1.05 }}
+                          className={`px-4 py-2 inline-flex text-xs leading-5 font-bold rounded-full shadow-md ${
+                            donation.status === 'completed'
+                              ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-200'
+                              : donation.status === 'pending'
+                              ? 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-700 border border-yellow-200'
+                              : 'bg-gradient-to-r from-red-100 to-rose-100 text-red-700 border border-red-200'
+                          }`}
+                        >
                           {donation.status.charAt(0).toUpperCase() + donation.status.slice(1)}
-                        </span>
+                        </motion.span>
                       </td>
-                    </tr>
+                    </motion.tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
-        </div>
+        </motion.div>
       </main>
     </div>
   );

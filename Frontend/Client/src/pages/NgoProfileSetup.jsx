@@ -2,7 +2,8 @@ import { useForm, Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { Building2, Phone, FileText, Hash, MapPin, Home, Globe, Calendar } from 'lucide-react';
+import { Building2, Phone, FileText, Hash, MapPin, Home, Globe, Calendar, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { createOrUpdateProfile, getProfile } from '../services/ngoService';
 
 const NgoProfileSetup = () => {
@@ -127,16 +128,31 @@ const NgoProfileSetup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-white rounded-2xl shadow-xl p-8 border-2 border-purple-100"
+        >
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="bg-teal-100 p-4 rounded-full">
-                <Building2 className="w-12 h-12 text-teal-600" />
+            <motion.div
+              className="flex justify-center mb-4"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring' }}
+            >
+              <div className="bg-purple-100 p-4 rounded-full">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                >
+                  <Sparkles className="w-12 h-12 text-[#783be8]" />
+                </motion.div>
               </div>
-            </div>
-            <h2 className="text-3xl font-extrabold text-gray-900">
+            </motion.div>
+            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
               {isEdit ? 'Update NGO Profile' : 'Complete Your NGO Profile'}
             </h2>
             <p className="mt-2 text-sm text-gray-600">
@@ -145,29 +161,41 @@ const NgoProfileSetup = () => {
           </div>
 
           {error && (
-            <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg"
+            >
               <p className="text-sm text-red-700">{error}</p>
-            </div>
+            </motion.div>
           )}
 
           {success && (
-            <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-lg"
+            >
               <p className="text-sm text-green-700">
                 Profile {isEdit ? 'updated' : 'created'} successfully! Redirecting...
               </p>
-            </div>
+            </motion.div>
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* NGO Type */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
               <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                <Building2 className="w-4 h-4 mr-2 text-teal-600" />
+                <Building2 className="w-4 h-4 mr-2 text-[#783be8]" />
                 NGO Type <span className="text-red-500 ml-1">*</span>
               </label>
               <select
                 {...register('ngoType', { required: 'NGO type is required' })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition bg-white"
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl shadow-sm focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition bg-white"
               >
                 <option value="">Select NGO type</option>
                 {ngoTypes.map((type) => (
@@ -179,13 +207,16 @@ const NgoProfileSetup = () => {
               {errors.ngoType && (
                 <p className="mt-1 text-sm text-red-600">{errors.ngoType.message}</p>
               )}
-            </div>
+            </motion.div>
 
             {/* Other NGO Type */}
             {ngoType === 'others' && (
-              <div>
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+              >
                 <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <Building2 className="w-4 h-4 mr-2 text-teal-600" />
+                  <Building2 className="w-4 h-4 mr-2 text-[#783be8]" />
                   Specify NGO Type <span className="text-red-500 ml-1">*</span>
                 </label>
                 <input
@@ -193,36 +224,44 @@ const NgoProfileSetup = () => {
                   {...register('otherNgoType', {
                     required: ngoType === 'others' ? 'Please specify NGO type' : false,
                   })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl shadow-sm focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition"
                   placeholder="Enter NGO type"
                 />
                 {errors.otherNgoType && (
                   <p className="mt-1 text-sm text-red-600">{errors.otherNgoType.message}</p>
                 )}
-              </div>
+              </motion.div>
             )}
 
             {/* Registration Number */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+            >
               <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                <Hash className="w-4 h-4 mr-2 text-teal-600" />
+                <Hash className="w-4 h-4 mr-2 text-[#783be8]" />
                 Registration Number <span className="text-red-500 ml-1">*</span>
               </label>
               <input
                 type="text"
                 {...register('registrationNumber', { required: 'Registration number is required' })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl shadow-sm focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition"
                 placeholder="REG123456"
               />
               {errors.registrationNumber && (
                 <p className="mt-1 text-sm text-red-600">{errors.registrationNumber.message}</p>
               )}
-            </div>
+            </motion.div>
 
             {/* Phone Number */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
               <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                <Phone className="w-4 h-4 mr-2 text-teal-600" />
+                <Phone className="w-4 h-4 mr-2 text-[#783be8]" />
                 Contact Number <span className="text-red-500 ml-1">*</span>
               </label>
               <input
@@ -234,14 +273,14 @@ const NgoProfileSetup = () => {
                     message: 'Please enter a valid 10-digit phone number',
                   },
                 })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition"
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl shadow-sm focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition"
                 placeholder="9876543210"
                 maxLength="10"
               />
               {errors.phoneNumber && (
                 <p className="mt-1 text-sm text-red-600">{errors.phoneNumber.message}</p>
               )}
-            </div>
+            </motion.div>
 
             {/* Interested Art Domains */}
             <div>
@@ -394,24 +433,33 @@ const NgoProfileSetup = () => {
             </div>
 
             {/* Submit Buttons */}
-            <div className="flex gap-4">
-              <button
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="flex gap-4"
+            >
+              <motion.button
                 type="button"
                 onClick={() => navigate('/ngo-dashboard')}
-                className="flex-1 py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1 py-3 px-4 border-2 border-purple-200 rounded-xl shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#783be8] transition"
               >
                 Cancel
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 type="submit"
                 disabled={loading}
-                className="flex-1 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1 py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#783be8] transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Saving...' : isEdit ? 'Update Profile' : 'Complete Profile'}
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           </form>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

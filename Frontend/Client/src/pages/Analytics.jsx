@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { ArrowLeft, TrendingUp, ShoppingCart, Package, DollarSign, Calendar, Download } from 'lucide-react';
+import { ArrowLeft, TrendingUp, ShoppingCart, Package, DollarSign, Calendar, Download, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { getSalesAnalytics, getProductAnalytics } from '../services/analyticsService';
 import { getProducts } from '../services/productService';
@@ -95,121 +96,190 @@ const Analytics = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-700">Loading analytics...</p>
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            className="rounded-full h-16 w-16 border-4 border-[#783be8] border-t-transparent mx-auto mb-4"
+          />
+          <p className="text-lg text-gray-700 font-medium">Loading analytics...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
       {/* Header */}
-      <nav className="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg sticky top-0 z-50">
+      <nav className="bg-white shadow-lg border-b-4 border-[#783be8] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <button
+              <motion.button
                 onClick={() => navigate('/artisan-dashboard')}
-                className="text-white hover:text-gray-200 transition"
+                className="text-[#783be8] hover:text-purple-700 transition"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <ArrowLeft className="w-6 h-6" />
-              </button>
-              <div className="flex items-center gap-3">
-                <TrendingUp className="w-8 h-8 text-white" />
-                <h1 className="text-2xl font-bold text-white">Sales Analytics</h1>
+              </motion.button>
+              <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/artisan-dashboard')}>
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Sparkles className="w-8 h-8 text-[#783be8]" />
+                </motion.div>
+                <motion.h1 
+                  className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  CraftConnect
+                </motion.h1>
               </div>
             </div>
-            <button
+            <motion.button
               onClick={() => window.print()}
-              className="flex items-center gap-2 px-4 py-2 bg-white text-indigo-600 rounded-lg hover:bg-gray-100 transition"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:shadow-lg transition font-semibold"
             >
               <Download className="w-4 h-4" />
               Export
-            </button>
+            </motion.button>
           </div>
         </div>
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Period Selector */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-purple-100"
+        >
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-indigo-600" />
+              <Calendar className="w-5 h-5 text-[#783be8]" />
               <h2 className="text-lg font-bold text-gray-900">Time Period</h2>
             </div>
             <div className="flex gap-2 flex-wrap">
               {['daily', 'weekly', 'monthly'].map((p) => (
-                <button
+                <motion.button
                   key={p}
                   onClick={() => setPeriod(p)}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`px-4 py-2 rounded-xl font-semibold transition ${
                     period === p
-                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-700 hover:bg-purple-50 hover:text-[#783be8]'
                   }`}
                 >
                   {p.charAt(0).toUpperCase() + p.slice(1)}
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Summary Cards */}
         {analytics && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: { transition: { staggerChildren: 0.1 } }
+            }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6"
+          >
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 }
+              }}
+              whileHover={{ y: -6, scale: 1.02 }}
+              className="bg-gradient-to-br from-indigo-500 via-[#783be8] to-purple-600 rounded-2xl shadow-xl p-6 text-white border-2 border-purple-200"
+            >
               <div className="flex items-center justify-between mb-2">
-                <DollarSign className="w-8 h-8 opacity-80" />
+                <DollarSign className="w-8 h-8 opacity-90" />
                 <TrendingUp className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-medium opacity-90 mb-1">Total Revenue</h3>
-              <p className="text-3xl font-bold">{formatCurrency(analytics.summary.totalRevenue)}</p>
-            </div>
+              <p className="text-3xl font-extrabold">{formatCurrency(analytics.summary.totalRevenue)}</p>
+            </motion.div>
 
-            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 }
+              }}
+              whileHover={{ y: -6, scale: 1.02 }}
+              className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-xl p-6 text-white border-2 border-green-200"
+            >
               <div className="flex items-center justify-between mb-2">
-                <ShoppingCart className="w-8 h-8 opacity-80" />
+                <ShoppingCart className="w-8 h-8 opacity-90" />
                 <TrendingUp className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-medium opacity-90 mb-1">Total Orders</h3>
-              <p className="text-3xl font-bold">{analytics.summary.totalOrders}</p>
-            </div>
+              <p className="text-3xl font-extrabold">{analytics.summary.totalOrders}</p>
+            </motion.div>
 
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 }
+              }}
+              whileHover={{ y: -6, scale: 1.02 }}
+              className="bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl shadow-xl p-6 text-white border-2 border-pink-200"
+            >
               <div className="flex items-center justify-between mb-2">
-                <Package className="w-8 h-8 opacity-80" />
+                <Package className="w-8 h-8 opacity-90" />
                 <TrendingUp className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-medium opacity-90 mb-1">Items Sold</h3>
-              <p className="text-3xl font-bold">{analytics.summary.totalQuantity}</p>
-            </div>
+              <p className="text-3xl font-extrabold">{analytics.summary.totalQuantity}</p>
+            </motion.div>
 
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 }
+              }}
+              whileHover={{ y: -6, scale: 1.02 }}
+              className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl shadow-xl p-6 text-white border-2 border-orange-200"
+            >
               <div className="flex items-center justify-between mb-2">
-                <DollarSign className="w-8 h-8 opacity-80" />
+                <DollarSign className="w-8 h-8 opacity-90" />
                 <TrendingUp className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-medium opacity-90 mb-1">Avg Order Value</h3>
-              <p className="text-3xl font-bold">{formatCurrency(analytics.summary.averageOrderValue)}</p>
-            </div>
-          </div>
+              <p className="text-3xl font-extrabold">{formatCurrency(analytics.summary.averageOrderValue)}</p>
+            </motion.div>
+          </motion.div>
         )}
 
         {/* Revenue Trend Chart */}
         {analytics && (
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Revenue Trend</h2>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-purple-100"
+          >
+            <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent mb-6">
+              Revenue Trend
+            </h2>
             <ResponsiveContainer width="100%" height={400}>
               <AreaChart data={analytics.timeSeriesData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                    <stop offset="5%" stopColor="#783be8" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#783be8" stopOpacity={0.1}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -220,20 +290,28 @@ const Analytics = () => {
                 <Area 
                   type="monotone" 
                   dataKey="revenue" 
-                  stroke="#3B82F6" 
+                  stroke="#783be8" 
                   fillOpacity={1} 
                   fill="url(#colorRevenue)" 
                   name="Revenue (₹)"
+                  strokeWidth={3}
                 />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </motion.div>
         )}
 
         {/* Orders & Quantity Chart */}
         {analytics && (
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Orders & Quantity Sold</h2>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-purple-100"
+          >
+            <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent mb-6">
+              Orders & Quantity Sold
+            </h2>
             <ResponsiveContainer width="100%" height={350}>
               <LineChart data={analytics.timeSeriesData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -246,20 +324,20 @@ const Analytics = () => {
                   dataKey="orders" 
                   stroke="#10B981" 
                   strokeWidth={3}
-                  dot={{ fill: '#10B981', r: 4 }}
+                  dot={{ fill: '#10B981', r: 5 }}
                   name="Orders"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="quantity" 
-                  stroke="#8B5CF6" 
+                  stroke="#783be8" 
                   strokeWidth={3}
-                  dot={{ fill: '#8B5CF6', r: 4 }}
+                  dot={{ fill: '#783be8', r: 5 }}
                   name="Quantity"
                 />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </motion.div>
         )}
 
         {/* Top Products & Category Sales */}

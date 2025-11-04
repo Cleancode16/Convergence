@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { ArrowLeft, Calendar, Clock, MapPin, Users, Upload, X, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, MapPin, Users, Upload, X, Image as ImageIcon, AlertCircle, Sparkles } from 'lucide-react';
 import { createWorkshop } from '../services/workshopService';
 import { uploadImageToCloudinary } from '../config/cloudinary';
+import { motion } from 'framer-motion';
 
 const CreateWorkshop = () => {
   const navigate = useNavigate();
@@ -173,34 +174,66 @@ const CreateWorkshop = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
       {/* Header */}
-      <nav className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 shadow-lg sticky top-0 z-50">
+      <nav className="bg-white shadow-xl border-b-4 border-[#783be8] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16">
-            <button onClick={() => navigate(-1)} className="text-white hover:text-purple-100 transition">
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <h1 className="ml-4 text-2xl font-bold text-white">Create Workshop</h1>
+          <div className="flex items-center h-20">
+            <motion.button
+              whileHover={{ scale: 1.1, x: -5 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => navigate(-1)}
+              className="text-[#783be8] hover:text-purple-700 transition"
+            >
+              <ArrowLeft className="w-7 h-7" />
+            </motion.button>
+            <div className="flex items-center gap-3 ml-4 cursor-pointer" onClick={() => navigate('/artisan-dashboard')}>
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Sparkles className="w-8 h-8 text-[#783be8]" />
+              </motion.div>
+              <motion.h1 
+                className="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-transparent bg-clip-text"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                CraftConnect
+              </motion.h1>
+            </div>
           </div>
         </div>
       </nav>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <motion.form
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          onSubmit={handleSubmit}
+          className="bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-purple-100"
+        >
           {/* Header Section */}
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6">
-            <h2 className="text-2xl font-bold text-white mb-2">Workshop Information</h2>
-            <p className="text-purple-100 text-sm">Fields marked with * are required</p>
+          <div className="bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 p-8">
+            <h2 className="text-3xl font-extrabold text-white mb-2">Workshop Information</h2>
+            <p className="text-purple-100 text-sm font-medium">Fields marked with * are required</p>
           </div>
 
           <div className="p-8 space-y-8">
             {/* Basic Information */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-purple-200 pb-2">Basic Details</h3>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="space-y-6"
+            >
+              <h3 className="text-xl font-extrabold text-gray-900 border-b-2 border-purple-200 pb-2">Basic Details</h3>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-gray-800 mb-2">
                   Workshop Name
                 </label>
                 <input
@@ -208,20 +241,20 @@ const CreateWorkshop = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                   placeholder="e.g., Traditional Pottery Making Workshop (Auto-generated if left empty)"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-gray-800 mb-2">
                   Art Form
                 </label>
                 <select
                   name="artForm"
                   value={formData.artForm}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                 >
                   <option value="">Select Art Form (Optional)</option>
                   {artForms.map(form => (
@@ -231,7 +264,7 @@ const CreateWorkshop = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-gray-800 mb-2">
                   Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -239,22 +272,26 @@ const CreateWorkshop = () => {
                   value={formData.description}
                   onChange={handleInputChange}
                   rows="5"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                   placeholder="Describe what participants will learn in this workshop..."
                   required
                 />
               </div>
-            </div>
+            </motion.div>
 
             {/* Date & Time */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-purple-200 pb-2 mb-6 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-purple-600" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <h3 className="text-xl font-extrabold text-gray-900 border-b-2 border-purple-200 pb-2 mb-6 flex items-center gap-2">
+                <Calendar className="w-6 h-6 text-[#783be8]" />
                 Schedule
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-800 mb-2">
                     Date <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -263,12 +300,12 @@ const CreateWorkshop = () => {
                     value={formData.date}
                     onChange={handleInputChange}
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-800 mb-2">
                     Start Time <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -276,12 +313,12 @@ const CreateWorkshop = () => {
                     name="startTime"
                     value={formData.startTime}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-800 mb-2">
                     End Time <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -289,22 +326,26 @@ const CreateWorkshop = () => {
                     name="endTime"
                     value={formData.endTime}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                     required
                   />
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Location */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-purple-200 pb-2 mb-6 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-purple-600" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <h3 className="text-xl font-extrabold text-gray-900 border-b-2 border-purple-200 pb-2 mb-6 flex items-center gap-2">
+                <MapPin className="w-6 h-6 text-[#783be8]" />
                 Location
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-800 mb-2">
                     Address <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -312,56 +353,60 @@ const CreateWorkshop = () => {
                     name="address"
                     value={formData.location.address}
                     onChange={handleLocationChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                     placeholder="Complete address where workshop will be held"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                  <label className="block text-sm font-bold text-gray-800 mb-2">City</label>
                   <input
                     type="text"
                     name="city"
                     value={formData.location.city}
                     onChange={handleLocationChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                     placeholder="City (Optional)"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                  <label className="block text-sm font-bold text-gray-800 mb-2">State</label>
                   <input
                     type="text"
                     name="state"
                     value={formData.location.state}
                     onChange={handleLocationChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                     placeholder="State (Optional)"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
+                  <label className="block text-sm font-bold text-gray-800 mb-2">Pincode</label>
                   <input
                     type="text"
                     name="pincode"
                     value={formData.location.pincode}
                     onChange={handleLocationChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                     placeholder="Pincode (Optional)"
                   />
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Capacity & Pricing */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-purple-200 pb-2 mb-6 flex items-center gap-2">
-                <Users className="w-5 h-5 text-purple-600" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <h3 className="text-xl font-extrabold text-gray-900 border-b-2 border-purple-200 pb-2 mb-6 flex items-center gap-2">
+                <Users className="w-6 h-6 text-[#783be8]" />
                 Capacity & Pricing
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-800 mb-2">
                     Total Slots
                   </label>
                   <input
@@ -371,12 +416,12 @@ const CreateWorkshop = () => {
                     onChange={handleInputChange}
                     min="1"
                     max="100"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                     placeholder="Maximum participants (Default: 10)"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-800 mb-2">
                     Price (₹)
                   </label>
                   <input
@@ -385,21 +430,25 @@ const CreateWorkshop = () => {
                     value={formData.price}
                     onChange={handleInputChange}
                     min="0"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition font-medium"
                     placeholder="Enter 0 for free workshop"
                   />
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Images */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-purple-200 pb-2 mb-6 flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-purple-600" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <h3 className="text-xl font-extrabold text-gray-900 border-b-2 border-purple-200 pb-2 mb-6 flex items-center gap-2">
+                <ImageIcon className="w-6 h-6 text-[#783be8]" />
                 Workshop Images (Optional, Max 5)
               </h3>
               
-              <div className="border-2 border-dashed border-purple-300 rounded-xl p-8 text-center bg-purple-50 hover:bg-purple-100 transition">
+              <div className="border-2 border-dashed border-purple-300 rounded-2xl p-10 text-center bg-gradient-to-br from-purple-50 to-pink-50 hover:border-[#783be8] transition">
                 <input
                   type="file"
                   accept="image/*"
@@ -413,72 +462,109 @@ const CreateWorkshop = () => {
                   htmlFor="image-upload"
                   className={`cursor-pointer inline-flex flex-col items-center ${imageFiles.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  <Upload className="w-16 h-16 text-purple-500 mb-3" />
-                  <span className="text-base font-medium text-gray-700">Click to upload images</span>
-                  <span className="text-sm text-gray-500 mt-2">PNG, JPG up to 10MB each</span>
-                  <span className="text-xs text-purple-600 mt-1">{imageFiles.length}/5 images selected</span>
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <Upload className="w-20 h-20 text-[#783be8] mb-4" />
+                  </motion.div>
+                  <span className="text-base font-extrabold text-gray-800">Click to upload images</span>
+                  <span className="text-sm text-gray-500 mt-2 font-medium">PNG, JPG up to 10MB each</span>
+                  <span className="text-xs text-[#783be8] mt-1 font-bold">{imageFiles.length}/5 images selected</span>
                 </label>
               </div>
 
               {/* Image Previews */}
               {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6"
+                >
                   {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative group">
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.05 }}
+                      className="relative group"
+                    >
                       <img
                         src={preview}
                         alt={`Preview ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg border-2 border-purple-200"
+                        className="w-full h-32 object-cover rounded-2xl border-2 border-purple-200 shadow-md"
                       />
-                      <button
+                      <motion.button
+                        whileHover={{ scale: 1.1, rotate: 90 }}
+                        whileTap={{ scale: 0.9 }}
                         type="button"
                         onClick={() => removeImage(index)}
                         className="absolute -top-2 -right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition shadow-lg hover:bg-red-600"
                       >
                         <X className="w-4 h-4" />
-                      </button>
-                    </div>
+                      </motion.button>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               )}
 
               {/* Upload Progress */}
               {uploadingImages && (
-                <div className="mt-4 bg-purple-50 rounded-lg p-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <AlertCircle className="w-5 h-5 text-purple-600 animate-pulse" />
-                    <span className="text-sm font-medium text-purple-900">Uploading images...</span>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    >
+                      <AlertCircle className="w-6 h-6 text-[#783be8]" />
+                    </motion.div>
+                    <span className="text-sm font-bold text-purple-900">Uploading images...</span>
                   </div>
-                  <div className="w-full bg-purple-200 rounded-full h-2">
-                    <div
-                      className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                    ></div>
+                  <div className="w-full bg-purple-200 rounded-full h-3 overflow-hidden shadow-inner">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${uploadProgress}%` }}
+                      className="bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 h-3 rounded-full transition-all duration-300 shadow-lg"
+                    ></motion.div>
                   </div>
-                  <p className="text-xs text-purple-600 mt-1 text-right">{uploadProgress}%</p>
-                </div>
+                  <p className="text-xs text-[#783be8] mt-2 text-right font-bold">{uploadProgress}%</p>
+                </motion.div>
               )}
-            </div>
+            </motion.div>
 
             {/* Submit Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t-2 border-gray-200">
-              <button
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="flex flex-col sm:flex-row gap-4 pt-6 border-t-2 border-purple-200"
+            >
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={() => navigate(-1)}
-                className="flex-1 py-4 px-6 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold text-lg"
+                className="flex-1 py-4 px-6 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition font-bold text-lg shadow-md"
               >
                 Cancel
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02, boxShadow: "0 20px 25px -5px rgba(120, 59, 232, 0.4)" }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading || uploadingImages}
-                className="flex-1 py-4 px-6 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 text-white rounded-lg hover:from-purple-700 hover:via-indigo-700 hover:to-purple-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl text-lg"
+                className="flex-1 py-4 px-6 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-purple-700 transition font-extrabold disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl text-lg"
               >
                 {uploadingImages ? `Uploading Images (${uploadProgress}%)...` : loading ? 'Creating Workshop...' : '✨ Create Workshop'}
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           </div>
-        </form>
+        </motion.form>
       </main>
     </div>
   );

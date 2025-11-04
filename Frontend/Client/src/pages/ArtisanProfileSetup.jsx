@@ -2,7 +2,8 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { User, Phone, CreditCard, Briefcase, MapPin, Home, FileText } from 'lucide-react';
+import { User, Phone, CreditCard, Briefcase, MapPin, Home, FileText, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { createOrUpdateProfile, getProfile } from '../services/artisanService';
 
 const ArtisanProfileSetup = () => {
@@ -97,16 +98,31 @@ const ArtisanProfileSetup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-white rounded-2xl shadow-xl p-8 border-2 border-purple-100"
+        >
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="bg-amber-100 p-4 rounded-full">
-                <User className="w-12 h-12 text-amber-600" />
+            <motion.div
+              className="flex justify-center mb-4"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring' }}
+            >
+              <div className="bg-purple-100 p-4 rounded-full">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                >
+                  <Sparkles className="w-12 h-12 text-[#783be8]" />
+                </motion.div>
               </div>
-            </div>
-            <h2 className="text-3xl font-extrabold text-gray-900">
+            </motion.div>
+            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
               {isEdit ? 'Update Your Profile' : 'Complete Your Artisan Profile'}
             </h2>
             <p className="mt-2 text-sm text-gray-600">
@@ -115,29 +131,41 @@ const ArtisanProfileSetup = () => {
           </div>
 
           {error && (
-            <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg"
+            >
               <p className="text-sm text-red-700">{error}</p>
-            </div>
+            </motion.div>
           )}
 
           {success && (
-            <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-lg"
+            >
               <p className="text-sm text-green-700">
                 Profile {isEdit ? 'updated' : 'created'} successfully! Redirecting...
               </p>
-            </div>
+            </motion.div>
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Art Type */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
               <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                <Briefcase className="w-4 h-4 mr-2 text-amber-600" />
+                <Briefcase className="w-4 h-4 mr-2 text-[#783be8]" />
                 Art Type <span className="text-red-500 ml-1">*</span>
               </label>
               <select
                 {...register('artType', { required: 'Art type is required' })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition bg-white"
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl shadow-sm focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition bg-white"
               >
                 <option value="">Select your art type</option>
                 {artTypes.map((type) => (
@@ -149,7 +177,7 @@ const ArtisanProfileSetup = () => {
               {errors.artType && (
                 <p className="mt-1 text-sm text-red-600">{errors.artType.message}</p>
               )}
-            </div>
+            </motion.div>
 
             {/* Other Art Type (shown only when 'others' is selected) */}
             {artType === 'others' && (
@@ -322,24 +350,33 @@ const ArtisanProfileSetup = () => {
             </div>
 
             {/* Submit Button */}
-            <div className="flex gap-4">
-              <button
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex gap-4"
+            >
+              <motion.button
                 type="button"
                 onClick={() => navigate('/artisan-dashboard')}
-                className="flex-1 py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1 py-3 px-4 border-2 border-purple-200 rounded-xl shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#783be8] transition"
               >
                 Cancel
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 type="submit"
                 disabled={loading}
-                className="flex-1 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1 py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#783be8] transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Saving...' : isEdit ? 'Update Profile' : 'Complete Profile'}
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           </form>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

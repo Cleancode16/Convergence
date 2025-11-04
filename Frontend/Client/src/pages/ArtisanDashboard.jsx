@@ -1,12 +1,13 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { Package, ShoppingCart, MessageSquare, Star, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle, Users, Wallet, FileText, Award, Calendar } from 'lucide-react';
+import { Package, ShoppingCart, BarChart3, Settings, LogOut, BadgeCheck, Clock, XCircle, AlertCircle, Users, Wallet, FileText, Award, Calendar, Menu, ChevronDown, ArrowRight, Sparkles, X } from 'lucide-react';
 import { logout } from '../redux/actions/authActions';
 import { getProfileStatus, getProfile } from '../services/artisanService';
 import { getBalance } from '../services/walletService';
 import { getMyWorkshops } from '../services/workshopService';
 import confetti from 'canvas-confetti';
+import { motion } from 'framer-motion';
 
 const ArtisanDashboard = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -17,7 +18,31 @@ const ArtisanDashboard = () => {
   const [profileData, setProfileData] = useState(null);
   const [walletBalance, setWalletBalance] = useState(0);
   const [workshops, setWorkshops] = useState([]);
+  const [showQuickNav, setShowQuickNav] = useState(false);
+  const [showVerificationBanner, setShowVerificationBanner] = useState(false);
   const confettiTriggered = useRef(false);
+
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 60 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: 'easeOut' } }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
 
   useEffect(() => {
     const checkProfileStatus = async () => {
@@ -32,22 +57,30 @@ const ArtisanDashboard = () => {
             if (profileResponse.success) {
               setProfileData(profileResponse.data);
               
-              if (profileResponse.data.verificationStatus === 'verified' && !confettiTriggered.current) {
-                const hasSeenConfetti = localStorage.getItem(`confetti_${userInfo._id}`);
+              if (profileResponse.data.verificationStatus === 'verified') {
+                const verificationSeenKey = `verification_seen_${userInfo._id}_${profileResponse.data.verifiedAt}`;
+                const hasSeenVerification = localStorage.getItem(verificationSeenKey);
                 
-                if (!hasSeenConfetti) {
-                  triggerConfetti();
-                  localStorage.setItem(`confetti_${userInfo._id}`, 'true');
-                  confettiTriggered.current = true;
+                if (!hasSeenVerification) {
+                  setShowVerificationBanner(true);
+                  localStorage.setItem(verificationSeenKey, 'true');
+                }
+
+                if (!confettiTriggered.current) {
+                  const hasSeenConfetti = localStorage.getItem(`confetti_${userInfo._id}`);
+                  
+                  if (!hasSeenConfetti) {
+                    triggerConfetti();
+                    localStorage.setItem(`confetti_${userInfo._id}`, 'true');
+                    confettiTriggered.current = true;
+                  }
                 }
               }
             }
 
-            // Fetch wallet balance
             try {
               const balanceData = await getBalance(userInfo.token);
               setWalletBalance(balanceData.data.balance || 0);
-              console.log('Wallet balance:', balanceData.data.balance);
             } catch (error) {
               console.error('Error fetching wallet balance:', error);
               setWalletBalance(0);
@@ -95,7 +128,6 @@ const ArtisanDashboard = () => {
 
       const particleCount = 50 * (timeLeft / duration);
 
-      // Confetti from left side
       confetti({
         ...defaults,
         particleCount,
@@ -103,7 +135,6 @@ const ArtisanDashboard = () => {
         colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
       });
 
-      // Confetti from right side
       confetti({
         ...defaults,
         particleCount,
@@ -122,13 +153,113 @@ const ArtisanDashboard = () => {
     navigate('/artisan-profile-setup');
   };
 
+  const dashboardSections = [
+    {
+      id: 'artist-post',
+      title: 'Share Your Story',
+      description: 'Create captivating artist posts to showcase your journey, skills, and passion. Connect with art lovers and build your personal brand.',
+      icon: FileText,
+      gradient: 'from-purple-600 to-indigo-600',
+      image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800',
+      route: '/my-artist-post',
+      imagePosition: 'left'
+    },
+    {
+      id: 'schemes',
+      title: 'Government Schemes',
+      description: 'Discover AI-curated government schemes tailored for artisans. Get funding, training, and support to grow your craft business.',
+      icon: Award,
+      gradient: 'from-amber-600 to-orange-600',
+      image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800',
+      route: '/schemes',
+      imagePosition: 'right',
+      badge: 'AI Powered'
+    },
+    {
+      id: 'products',
+      title: 'Manage Your Products',
+      description: 'Create stunning product listings, track inventory, and showcase your handcrafted masterpieces to a global audience.',
+      icon: Package,
+      gradient: 'from-blue-600 to-indigo-600',
+      image: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=800',
+      route: '/my-products',
+      imagePosition: 'left'
+    },
+    {
+      id: 'orders',
+      title: 'Your Orders Hub',
+      description: 'Track orders, manage fulfillment, and provide exceptional customer service. Watch your business thrive with every sale.',
+      icon: ShoppingCart,
+      gradient: 'from-green-600 to-teal-600',
+      image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800',
+      route: '/artisan-orders',
+      imagePosition: 'right'
+    },
+    {
+      id: 'analytics',
+      title: 'Sales Analytics',
+      description: 'Dive into comprehensive sales data, track performance metrics, and make data-driven decisions to grow your craft business.',
+      icon: BarChart3,
+      gradient: 'from-indigo-600 to-purple-600',
+      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
+      route: '/analytics',
+      imagePosition: 'left'
+    },
+    {
+      id: 'connections',
+      title: 'NGO Partnerships',
+      description: 'Connect with NGOs supporting traditional crafts. Access funding, mentorship, and opportunities to expand your reach.',
+      icon: Users,
+      gradient: 'from-teal-600 to-cyan-600',
+      image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800',
+      route: '/artisan-connections',
+      imagePosition: 'right'
+    },
+    {
+      id: 'workshops',
+      title: 'Host Workshops',
+      description: 'Share your expertise by hosting interactive workshops. Teach traditional crafts, earn income, and inspire the next generation.',
+      icon: Calendar,
+      gradient: 'from-purple-600 to-pink-600',
+      image: 'https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?w=800',
+      route: '/create-workshop',
+      imagePosition: 'left'
+    }
+  ];
+
+  const VerifiedBadge = ({ size = 24 }) => (
+    <svg
+      viewBox="0 0 22 22"
+      width={size}
+      height={size}
+      aria-label="Verified"
+      role="img"
+      style={{ display: 'inline-block' }}
+    >
+      <g>
+        <path
+          fill="#1D9BF0"
+          d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"
+        />
+      </g>
+    </svg>
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-16 h-16 border-4 border-[#783be8] border-t-transparent rounded-full mx-auto"
+          />
+          <p className="mt-4 text-gray-700 font-semibold">Loading your dashboard...</p>
+        </motion.div>
       </div>
     );
   }
@@ -138,307 +269,320 @@ const ArtisanDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-amber-600 shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      {/* Fixed Navbar */}
+      <nav className="fixed top-0 left-0 right-0 bg-white shadow-xl border-b-4 border-[#783be8] z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-white">Artisan Dashboard</h1>
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/artisan-dashboard')}>
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Package className="w-8 h-8 text-[#783be8]" />
+              </motion.div>
+              <motion.h1 
+                className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-transparent bg-clip-text"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                CraftConnect
+              </motion.h1>
               {profileData?.isExpertVerified && (
-                <div className="flex items-center gap-1.5 bg-blue-500 text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow-lg">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", delay: 0.3 }}
+                  className="flex items-center gap-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg"
+                >
                   <BadgeCheck className="w-5 h-5 fill-white" />
                   <span className="hidden sm:inline">Expert Verified</span>
-                </div>
+                </motion.div>
               )}
             </div>
-            <div className="flex gap-3">
+            
+            <div className="flex items-center gap-3">
+              {/* Desktop Quick Nav Dropdown */}
+              <div className="hidden lg:block relative">
+                <button
+                  onClick={() => setShowQuickNav(!showQuickNav)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 rounded-lg hover:from-indigo-200 hover:to-purple-200 transition font-semibold border border-indigo-200"
+                >
+                  <Menu className="w-5 h-5" />
+                  <span>Quick Access</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showQuickNav ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showQuickNav && (
+                  <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+                    <div className="p-3 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-200">
+                      <p className="text-sm font-semibold text-gray-700">Navigate to:</p>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {dashboardSections.map((section) => {
+                        const Icon = section.icon;
+                        return (
+                          <button
+                            key={section.id}
+                            onClick={() => {
+                              navigate(section.route);
+                              setShowQuickNav(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition text-left border-b border-gray-100 last:border-b-0"
+                          >
+                            <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${section.gradient} flex items-center justify-center flex-shrink-0`}>
+                              <Icon className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold text-gray-900 text-sm">{section.title}</p>
+                                {section.badge && (
+                                  <span className="text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full">
+                                    {section.badge}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500 truncate">{section.description.substring(0, 50)}...</p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Quick Nav Button */}
               <button
+                onClick={() => setShowQuickNav(!showQuickNav)}
+                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 rounded-lg hover:from-indigo-200 hover:to-purple-200 transition border border-indigo-200"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 20px rgba(120, 59, 232, 0.3)" }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleProfileEdit}
-                className="flex items-center gap-2 px-4 py-2 bg-white text-amber-600 rounded-lg hover:bg-gray-100 transition"
+                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-[#783be8] text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition font-bold shadow-lg"
               >
-                <Settings className="w-4 h-4" />
+                <Settings className="w-5 h-5" />
                 <span className="hidden sm:inline">Edit Profile</span>
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 bg-white text-amber-600 rounded-lg hover:bg-gray-100 transition"
+                className="flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-purple-200 text-gray-700 rounded-xl hover:bg-purple-50 transition font-bold shadow-md"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-5 h-5" />
                 <span className="hidden sm:inline">Logout</span>
-              </button>
+              </motion.button>
             </div>
           </div>
+
+          {/* Mobile Quick Nav Dropdown */}
+          {showQuickNav && (
+            <div className="lg:hidden bg-white border-t border-gray-200">
+              <div className="max-w-7xl mx-auto px-4 py-3 max-h-96 overflow-y-auto">
+                <div className="grid grid-cols-1 gap-2">
+                  {dashboardSections.map((section) => {
+                    const Icon = section.icon;
+                    return (
+                      <button
+                        key={section.id}
+                        onClick={() => {
+                          navigate(section.route);
+                          setShowQuickNav(false);
+                        }}
+                        className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-gray-50 to-indigo-50 hover:from-indigo-100 hover:to-purple-100 rounded-lg transition text-left"
+                      >
+                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${section.gradient} flex items-center justify-center flex-shrink-0`}>
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-gray-900 text-sm">{section.title}</p>
+                            {section.badge && (
+                              <span className="text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full">
+                                {section.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 truncate">{section.description.substring(0, 40)}...</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Welcome back, {userInfo?.name}!
-              </h2>
-              {profileData?.isExpertVerified && (
-                <div className="relative group">
-                  <BadgeCheck className="w-7 h-7 text-blue-500 fill-blue-100 cursor-pointer" />
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    Verified Expert Artisan
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                      <div className="border-4 border-transparent border-t-gray-900"></div>
+      {/* Main Content */}
+      <div className="pt-20">
+        {/* Stats Overview Section - First */}
+        <section className="w-full bg-white py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="w-full">
+              {/* Verification Banner */}
+              {showVerificationBanner && profileData?.verificationStatus === 'verified' && (
+                <div className="mb-6 p-5 bg-gradient-to-r from-blue-50 to-green-50 border-l-4 border-blue-500 rounded-xl shadow-lg animate-fade-in relative">
+                  <button
+                    onClick={() => setShowVerificationBanner(false)}
+                    className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                  <div className="flex items-start gap-4">
+                    <VerifiedBadge size={28} />
+                    <div>
+                      <p className="text-base font-bold text-blue-900">
+                        🎉 Congratulations! You are an Expert Verified Artisan
+                      </p>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Your profile has been verified by our admin team. This badge confirms you as a genuine and trusted artisan on our platform.
+                      </p>
+                      {profileData.verificationNotes && (
+                        <p className="text-xs text-blue-600 mt-2 italic">
+                          Admin note: {profileData.verificationNotes}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
               )}
-            </div>
-            {profileData?.verificationStatus && (
-              <div className="flex items-center gap-2">
-                {profileData.verificationStatus === 'pending' && (
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800 border-2 border-yellow-300">
-                    <Clock className="w-4 h-4" />
-                    Verification Pending
-                  </span>
-                )}
-                {profileData.verificationStatus === 'verified' && (
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
-                    <BadgeCheck className="w-5 h-5 fill-white" />
-                    Expert Verified Artisan
-                    <span className="ml-1 px-2 py-0.5 bg-white text-blue-600 text-xs rounded-full">✓ Genuine</span>
-                  </span>
-                )}
-                {profileData.verificationStatus === 'rejected' && (
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-red-100 text-red-800 border-2 border-red-300">
-                    <XCircle className="w-4 h-4" />
-                    Verification Rejected
-                  </span>
-                )}
-                {profileData.verificationStatus === 'fraud' && (
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-red-100 text-red-800 border-2 border-red-300">
-                    <AlertCircle className="w-4 h-4" />
-                    Account Flagged
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
 
-          {/* Verification Success Banner */}
-          {profileData?.verificationStatus === 'verified' && (
-            <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-green-50 border-l-4 border-blue-500 rounded-lg shadow-sm">
-              <div className="flex items-start gap-3">
-                <BadgeCheck className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-blue-900">
-                    🎉 Congratulations! You are an Expert Verified Artisan
-                  </p>
-                  <p className="text-sm text-blue-700 mt-1">
-                    Your profile has been verified by our admin team. This badge confirms you as a genuine and trusted artisan on our platform.
-                  </p>
-                  {profileData.verificationNotes && (
-                    <p className="text-xs text-blue-600 mt-2 italic">
-                      Admin note: {profileData.verificationNotes}
-                    </p>
-                  )}
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl p-5 text-white shadow-lg transform hover:scale-105 transition">
+                  <Package className="w-8 h-8 mb-2 opacity-80" />
+                  <p className="text-sm opacity-90 mb-1">Total Products</p>
+                  <p className="text-3xl font-bold">24</p>
+                </div>
+                <div className="bg-gradient-to-br from-green-500 to-teal-500 rounded-xl p-5 text-white shadow-lg transform hover:scale-105 transition">
+                  <ShoppingCart className="w-8 h-8 mb-2 opacity-80" />
+                  <p className="text-sm opacity-90 mb-1">Total Sales</p>
+                  <p className="text-3xl font-bold">₹45,230</p>
+                </div>
+                <div className="bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl p-5 text-white shadow-lg transform hover:scale-105 transition">
+                  <Package className="w-8 h-8 mb-2 opacity-80" />
+                  <p className="text-sm opacity-90 mb-1">Pending Orders</p>
+                  <p className="text-3xl font-bold">7</p>
+                </div>
+                <div className="bg-gradient-to-br from-pink-500 to-purple-500 rounded-xl p-5 text-white shadow-lg transform hover:scale-105 transition">
+                  <Wallet className="w-8 h-8 mb-2 opacity-80" />
+                  <p className="text-sm opacity-90 mb-1">Wallet Balance</p>
+                  <p className="text-3xl font-bold">₹{walletBalance ? walletBalance.toLocaleString('en-IN') : '0'}</p>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Verification Message */}
-          {profileData?.verificationStatus === 'pending' && (
-            <div className="mb-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
-              <p className="text-sm text-blue-700">
-                <strong>Profile Under Review:</strong> Your profile is being reviewed by our admin team. You'll be notified once verified.
-              </p>
-            </div>
-          )}
-
-          {profileData?.verificationStatus === 'rejected' && profileData?.verificationNotes && (
-            <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-              <p className="text-sm text-red-700">
-                <strong>Verification Rejected:</strong> {profileData.verificationNotes}
-              </p>
-            </div>
-          )}
-
-          {profileData?.verificationStatus === 'fraud' && profileData?.verificationNotes && (
-            <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-              <p className="text-sm text-red-700">
-                <strong>Account Flagged:</strong> {profileData.verificationNotes}
-              </p>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-amber-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Total Products</p>
-              <p className="text-3xl font-bold text-amber-600">24</p>
-            </div>
-            <div className="bg-green-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Total Sales</p>
-              <p className="text-3xl font-bold text-green-600">₹45,230</p>
-            </div>
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Pending Orders</p>
-              <p className="text-3xl font-bold text-blue-600">7</p>
-            </div>
-            <div className="bg-purple-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600 flex items-center gap-1">
-                <Wallet className="w-4 h-4" />
-                Wallet Balance
-              </p>
-              <p className="text-3xl font-bold text-purple-600">
-                ₹{walletBalance ? walletBalance.toLocaleString('en-IN') : '0'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div 
-            onClick={() => navigate('/my-artist-post')}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
-          >
-            <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4">
-              <FileText className="w-6 h-6 text-purple-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">My Artist Post</h3>
-            <p className="text-gray-600 text-sm">Share your story & arts</p>
-          </div>
-
-          <div 
-            onClick={() => navigate('/schemes')}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer border-2 border-amber-200"
-          >
-            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-amber-100 to-orange-100 rounded-lg mb-4">
-              <Award className="w-6 h-6 text-amber-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
-              Government Schemes
-              <span className="text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full">AI</span>
-            </h3>
-            <p className="text-gray-600 text-sm">Find schemes you're eligible for</p>
-          </div>
-
-          <div 
-            onClick={() => navigate('/create-product')}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
-          >
-            <div className="flex items-center justify-center w-12 h-12 bg-amber-100 rounded-lg mb-4">
-              <Package className="w-6 h-6 text-amber-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Add Product</h3>
-            <p className="text-gray-600 text-sm">Create new product listing</p>
-          </div>
-
-          <div 
-            onClick={() => navigate('/my-products')}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
-          >
-            <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4">
-              <Package className="w-6 h-6 text-blue-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">My Products</h3>
-            <p className="text-gray-600 text-sm">Manage your inventory</p>
-          </div>
-
-          <div 
-            onClick={() => navigate('/artisan-orders')}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
-          >
-            <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4">
-              <ShoppingCart className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Orders</h3>
-            <p className="text-gray-600 text-sm">View and manage orders</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
-            <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4">
-              <MessageSquare className="w-6 h-6 text-purple-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Messages</h3>
-            <p className="text-gray-600 text-sm">Customer inquiries</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
-            <div className="flex items-center justify-center w-12 h-12 bg-pink-100 rounded-lg mb-4">
-              <Star className="w-6 h-6 text-pink-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Reviews</h3>
-            <p className="text-gray-600 text-sm">Customer feedback</p>
-          </div>
-
-          <div 
-            onClick={() => navigate('/analytics')}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
-          >
-            <div className="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-lg mb-4">
-              <BarChart3 className="w-6 h-6 text-indigo-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Analytics</h3>
-            <p className="text-gray-600 text-sm">Sales insights & charts</p>
-          </div>
-
-          <div 
-            onClick={() => navigate('/artisan-connections')}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
-          >
-            <div className="flex items-center justify-center w-12 h-12 bg-teal-100 rounded-lg mb-4">
-              <Users className="w-6 h-6 text-teal-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">NGO Connections</h3>
-            <p className="text-gray-600 text-sm">View requests & connected NGOs</p>
-          </div>
-
-          {/* Add Workshop Card after Products card */}
-          <div
-            onClick={() => navigate('/create-workshop')}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
-          >
-            <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4">
-              <Calendar className="w-6 h-6 text-purple-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Create Workshop</h3>
-            <p className="text-gray-600 text-sm">Host a workshop for your craft</p>
-          </div>
-        </div>
-
-        {/* My Workshops Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">My Workshops</h2>
-            <button
-              onClick={() => navigate('/create-workshop')}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm"
-            >
-              + Create Workshop
-            </button>
-          </div>
-
-          {workshops.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No workshops created yet</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {workshops.map((workshop) => (
-                <div
-                  key={workshop._id}
-                  onClick={() => navigate(`/workshop/${workshop._id}`)}
-                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
-                >
-                  <h3 className="font-semibold text-gray-900 mb-2">{workshop.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">{workshop.description}</p>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{new Date(workshop.date).toLocaleDateString()}</span>
-                    <span className="font-medium text-purple-600">
-                      {workshop.enrolledUsers.length}/{workshop.totalSlots} enrolled
-                    </span>
+              {/* Workshops Section */}
+              {workshops.length > 0 && (
+                <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-lg p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 className="text-xl font-bold text-gray-900">Your Active Workshops</h2>
+                    <button
+                      onClick={() => navigate('/create-workshop')}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-semibold"
+                    >
+                      + Create Workshop
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {workshops.slice(0, 3).map((workshop) => (
+                      <div
+                        key={workshop._id}
+                        onClick={() => navigate(`/workshop/${workshop._id}`)}
+                        className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:shadow-lg transition cursor-pointer hover:border-purple-400"
+                      >
+                        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">{workshop.name}</h3>
+                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">{workshop.description}</p>
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <span>{new Date(workshop.date).toLocaleDateString()}</span>
+                          <span className="font-medium text-purple-600">
+                            {workshop.enrolledUsers.length}/{workshop.totalSlots} enrolled
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
-      </main>
+          </div>
+        </section>
+
+        {/* Feature Sections */}
+        {dashboardSections.map((section, index) => {
+          const Icon = section.icon;
+          return (
+            <section
+              key={section.id}
+              className="w-full bg-white py-8 border-t border-gray-100"
+            >
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center ${section.imagePosition === 'right' ? 'lg:grid-flow-dense' : ''}`}>
+                  
+                  {/* Text Content */}
+                  <div className={`flex flex-col justify-center space-y-4 ${section.imagePosition === 'right' ? 'lg:col-start-1' : ''}`}>
+                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${section.gradient} flex items-center justify-center shadow-lg`}>
+                      <Icon className="w-7 h-7 text-white" />
+                    </div>
+                    
+                    {section.badge && (
+                      <span className="inline-flex items-center gap-2 text-sm font-bold text-amber-600 bg-amber-100 px-3 py-1.5 rounded-full w-fit">
+                        <Sparkles className="w-4 h-4" />
+                        {section.badge}
+                      </span>
+                    )}
+
+                    <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight">
+                      {section.title}
+                    </h2>
+                    
+                    <p className="text-base lg:text-lg text-gray-700 leading-relaxed">
+                      {section.description}
+                    </p>
+
+                    <button
+                      onClick={() => navigate(section.route)}
+                      className={`group inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r ${section.gradient} text-white rounded-xl hover:shadow-xl transition-all duration-300 text-base font-semibold w-fit`}
+                    >
+                      <span>Explore Now</span>
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+
+                  {/* Image */}
+                  <div className={`relative group ${section.imagePosition === 'right' ? 'lg:col-start-2' : ''}`}>
+                    <div className="relative h-[280px] lg:h-[340px] rounded-2xl overflow-hidden shadow-xl">
+                      <img
+                        src={section.image}
+                        alt={section.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${section.gradient} opacity-20 group-hover:opacity-30 transition-opacity`}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        })}
+      </div>
+
+      {/* Click outside to close dropdown */}
+      {showQuickNav && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setShowQuickNav(false)}
+        />
+      )}
     </div>
   );
 };

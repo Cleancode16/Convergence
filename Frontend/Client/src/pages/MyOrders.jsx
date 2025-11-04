@@ -116,22 +116,36 @@ const MyOrders = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
       {/* Navbar */}
-      <nav className="bg-gradient-to-r from-teal-600 to-blue-600 shadow-lg sticky top-0 z-50">
+      <motion.nav 
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white shadow-lg sticky top-0 z-50"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 h-16">
-            <button
+          <div className="flex items-center gap-4 h-20">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => navigate('/user-dashboard')}
-              className="text-white hover:text-gray-200 transition"
+              className="text-gray-700 hover:text-[#783be8] transition p-2 rounded-lg hover:bg-purple-50"
             >
               <ArrowLeft className="w-6 h-6" />
-            </button>
+            </motion.button>
             <div className="flex items-center gap-3">
-              <ShoppingCart className="w-7 h-7 text-white" />
-              <h1 className="text-xl sm:text-2xl font-bold text-white">My Orders</h1>
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <ShoppingCart className="w-8 h-8 text-[#783be8]" />
+              </motion.div>
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
+                My Orders
+              </h1>
             </div>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}
@@ -139,26 +153,26 @@ const MyOrders = () => {
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
-          className="bg-white rounded-2xl shadow-xl p-6 mb-8"
+          className="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-purple-100"
         >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="md:col-span-2 relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search orders..."
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition outline-none"
+                className="w-full pl-12 pr-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition outline-none"
               />
             </div>
 
             <div className="relative">
-              <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition bg-white outline-none appearance-none cursor-pointer"
+                className="w-full pl-12 pr-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition bg-white outline-none appearance-none cursor-pointer"
               >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
@@ -170,11 +184,11 @@ const MyOrders = () => {
             </div>
 
             <div className="relative">
-              <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5" />
               <select
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition bg-white outline-none appearance-none cursor-pointer"
+                className="w-full pl-12 pr-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition bg-white outline-none appearance-none cursor-pointer"
               >
                 <option value="all">All Time</option>
                 <option value="week">Last Week</option>
@@ -186,16 +200,16 @@ const MyOrders = () => {
 
           {/* Active Filters */}
           {(searchTerm || filterStatus !== 'all' || dateFilter !== 'all') && (
-            <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-gray-200">
+            <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-purple-100">
               <span className="text-sm font-semibold text-gray-700">Active Filters:</span>
               {searchTerm && (
                 <motion.span
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-teal-100 to-blue-100 text-teal-800 rounded-full text-sm font-semibold"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 text-[#783be8] rounded-full text-sm font-semibold border border-purple-200"
                 >
                   Search: "{searchTerm}"
-                  <button onClick={() => setSearchTerm('')} className="hover:text-teal-900">
+                  <button onClick={() => setSearchTerm('')} className="hover:text-purple-900">
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </motion.span>
@@ -204,7 +218,7 @@ const MyOrders = () => {
                 <motion.span
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 rounded-full text-sm font-semibold"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 rounded-full text-sm font-semibold border border-purple-200"
                 >
                   Status: {filterStatus}
                   <button onClick={() => setFilterStatus('all')} className="hover:text-purple-900">
@@ -216,7 +230,7 @@ const MyOrders = () => {
                 <motion.span
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 rounded-full text-sm font-semibold"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 rounded-full text-sm font-semibold border border-purple-200"
                 >
                   Date: {dateFilter}
                   <button onClick={() => setDateFilter('all')} className="hover:text-indigo-900">
@@ -228,7 +242,7 @@ const MyOrders = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={clearFilters}
-                className="ml-auto px-4 py-1.5 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition text-sm font-semibold"
+                className="ml-auto px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition text-sm font-semibold"
               >
                 Clear All
               </motion.button>
@@ -248,7 +262,7 @@ const MyOrders = () => {
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               className="inline-block"
             >
-              <div className="w-16 h-16 border-4 border-teal-600 border-t-transparent rounded-full"></div>
+              <div className="w-16 h-16 border-4 border-[#783be8] border-t-transparent rounded-full"></div>
             </motion.div>
             <p className="mt-6 text-gray-600 text-lg font-medium">Loading orders...</p>
           </div>
@@ -257,7 +271,7 @@ const MyOrders = () => {
             initial="hidden"
             animate="visible"
             variants={scaleIn}
-            className="bg-white rounded-2xl shadow-xl p-16 text-center"
+            className="bg-white rounded-2xl shadow-xl p-16 text-center border border-purple-100"
           >
             <Package className="w-20 h-20 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500 text-xl font-semibold mb-2">No orders found</p>
@@ -274,8 +288,8 @@ const MyOrders = () => {
               <motion.div
                 key={order._id}
                 variants={fadeInUp}
-                whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}
-                className="bg-white rounded-2xl shadow-lg p-6 border-2 border-transparent hover:border-teal-200 transition cursor-pointer"
+                whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgba(120, 59, 232, 0.15)" }}
+                className="bg-white rounded-2xl shadow-lg p-6 border-2 border-transparent hover:border-purple-200 transition cursor-pointer"
               >
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                   {/* Product Image & Info */}
@@ -301,7 +315,7 @@ const MyOrders = () => {
                       </p>
                       <div className="flex items-center gap-3 text-sm">
                         <span className="text-gray-600">Qty: <span className="font-semibold text-gray-900">{order.quantity}</span></span>
-                        <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+                        <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
                           {formatPrice(order.totalPrice)}
                         </span>
                       </div>
@@ -311,11 +325,11 @@ const MyOrders = () => {
                   {/* Order Details */}
                   <div className="lg:col-span-4 flex flex-col justify-center space-y-2">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Calendar className="w-4 h-4 text-teal-600" />
+                      <Calendar className="w-4 h-4 text-[#783be8]" />
                       <span>{formatDate(order.createdAt)}</span>
                     </div>
                     <div className="flex items-start gap-2 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <MapPin className="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         {order.shippingAddress?.street && (
                           <div className="line-clamp-1">{order.shippingAddress.street}</div>

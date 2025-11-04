@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Search, Filter, BadgeCheck, MapPin, Briefcase, Phone, ArrowLeft, Send, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { getMatchingArtisans, sendConnectionRequest, getProfile, getNgoConnections } from '../services/ngoService';
 import ChatModal from '../components/ChatModal';
 
@@ -27,6 +28,36 @@ const BrowseArtisans = () => {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
+
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 60 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
 
   const artTypes = [
     { value: 'all', label: 'All Art Forms' },
@@ -156,70 +187,101 @@ const BrowseArtisans = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-teal-600 shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <motion.nav 
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white shadow-lg border-b border-purple-100 sticky top-0 z-50"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 h-16">
-            <button
+          <div className="flex items-center gap-4 h-20">
+            <motion.button
+              whileHover={{ scale: 1.1, x: -5 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => navigate('/ngo-dashboard')}
-              className="text-white hover:text-gray-200 transition"
+              className="text-[#783be8] hover:text-purple-700 transition p-2 rounded-lg hover:bg-purple-50"
             >
               <ArrowLeft className="w-6 h-6" />
-            </button>
-            <h1 className="text-2xl font-bold text-white">Browse Artisans</h1>
+            </motion.button>
+            <div className="flex items-center gap-3">
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Briefcase className="w-8 h-8 text-[#783be8]" />
+              </motion.div>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent">
+                Browse Artisans
+              </h1>
+            </div>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* View Toggle */}
-        <div className="bg-white rounded-lg shadow-md mb-6">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white rounded-2xl shadow-xl mb-8 border-2 border-purple-100 overflow-hidden"
+        >
           <div className="flex">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setActiveView('browse')}
-              className={`flex-1 px-6 py-4 text-sm font-medium border-b-2 transition ${
+              className={`flex-1 px-6 py-5 text-sm font-bold border-b-4 transition-all ${
                 activeView === 'browse'
-                  ? 'border-teal-600 text-teal-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-[#783be8] text-[#783be8] bg-purple-50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
               }`}
             >
               Browse Artisans
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setActiveView('connections')}
-              className={`flex-1 px-6 py-4 text-sm font-medium border-b-2 transition ${
+              className={`flex-1 px-6 py-5 text-sm font-bold border-b-4 transition-all ${
                 activeView === 'connections'
-                  ? 'border-teal-600 text-teal-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-[#783be8] text-[#783be8] bg-purple-50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
               }`}
             >
               My Connections
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {activeView === 'browse' ? (
           <>
             {/* Search and Filter */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-2xl shadow-xl p-6 mb-8 border-2 border-purple-100"
+            >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#783be8] w-5 h-5" />
                   <input
                     type="text"
                     placeholder="Search by name, location..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="w-full pl-12 pr-4 py-4 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] transition-all font-medium"
                   />
                 </div>
 
                 <div className="relative">
-                  <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#783be8] w-5 h-5" />
                   <select
                     value={filterArtType}
                     onChange={(e) => setFilterArtType(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white appearance-none"
+                    className="w-full pl-12 pr-4 py-4 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] bg-white appearance-none font-medium cursor-pointer"
                   >
                     <option value="all">All Interested Arts</option>
                     {ngoProfile?.interestedArtDomains.includes('all') ? (
@@ -242,11 +304,11 @@ const BrowseArtisans = () => {
                 </div>
 
                 <div className="relative">
-                  <BadgeCheck className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <BadgeCheck className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#783be8] w-5 h-5" />
                   <select
                     value={filterVerification}
                     onChange={(e) => setFilterVerification(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white appearance-none"
+                    className="w-full pl-12 pr-4 py-4 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] bg-white appearance-none font-medium cursor-pointer"
                   >
                     <option value="verified">Verified Only</option>
                     <option value="all">All Artisans</option>
@@ -254,8 +316,8 @@ const BrowseArtisans = () => {
                 </div>
               </div>
 
-              <div className="mt-4 text-sm text-gray-600">
-                Showing {currentArtisans.length} of {artisans.length} artisans
+              <div className="mt-4 text-sm text-gray-600 font-medium">
+                Showing <span className="font-bold text-[#783be8] text-base">{currentArtisans.length}</span> of <span className="font-bold text-[#783be8] text-base">{artisans.length}</span> artisans
                 {ngoProfile && !ngoProfile.interestedArtDomains.includes('all') && (
                   <span className="ml-2">
                     (Filtered by your interested domains: {ngoProfile.interestedArtDomains.map(d => 
@@ -264,139 +326,190 @@ const BrowseArtisans = () => {
                   </span>
                 )}
               </div>
-            </div>
+            </motion.div>
 
             {/* Table */}
             {loading ? (
-              <div className="text-center py-12 bg-white rounded-lg shadow-md">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Loading artisans...</p>
-              </div>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-20 bg-white rounded-2xl shadow-xl border-2 border-purple-100"
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="inline-block"
+                >
+                  <div className="w-16 h-16 border-4 border-[#783be8] border-t-transparent rounded-full"></div>
+                </motion.div>
+                <p className="mt-6 text-gray-700 font-semibold text-lg">Loading artisans...</p>
+              </motion.div>
             ) : artisans.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-md p-12 text-center">
-                <p className="text-gray-500 text-lg">No artisans found matching your criteria</p>
-              </div>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-2xl shadow-xl p-16 text-center border-2 border-purple-100"
+              >
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Briefcase className="w-20 h-20 text-purple-300 mx-auto mb-6" />
+                </motion.div>
+                <p className="text-gray-700 text-xl font-semibold mb-2">No artisans found matching your criteria</p>
+                <p className="text-gray-500">Try adjusting your filters or search terms</p>
+              </motion.div>
             ) : (
               <>
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <motion.div 
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-purple-100"
+                >
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-teal-50">
+                    <table className="min-w-full divide-y divide-purple-100">
+                      <thead className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">
                             Artisan
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">
                             Art Type
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">
                             Experience
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">
                             Location
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">
                             Contact
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">
                             Status
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-5 text-left text-xs font-extrabold text-gray-700 uppercase tracking-wider">
                             Action
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {currentArtisans.map((artisan) => {
+                      <tbody className="bg-white divide-y divide-purple-50">
+                        {currentArtisans.map((artisan, index) => {
                           // Add null check for artisan.user
                           if (!artisan.user) {
                             return null;
                           }
 
                           return (
-                            <tr key={artisan._id} className="hover:bg-gray-50">
+                            <motion.tr 
+                              key={artisan._id} 
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                              whileHover={{ backgroundColor: "#faf5ff" }}
+                              className="transition-all"
+                            >
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
                                   <div>
                                     <div className="flex items-center gap-2">
-                                      <div className="text-sm font-medium text-gray-900">
+                                      <div className="text-sm font-bold text-gray-900">
                                         {artisan.user?.name || 'Unknown'}
                                       </div>
                                       {artisan.isExpertVerified && (
-                                        <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-100" />
+                                        <BadgeCheck className="w-5 h-5 text-[#783be8] fill-purple-100" />
                                       )}
                                     </div>
-                                    <div className="text-sm text-gray-500">{artisan.user?.email || 'N/A'}</div>
+                                    <div className="text-sm text-gray-500 font-medium">{artisan.user?.email || 'N/A'}</div>
                                   </div>
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">
+                                <div className="text-sm text-gray-900 font-medium">
                                   {formatArtType(artisan.artType, artisan.otherArtType)}
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">
+                                <div className="text-sm text-gray-900 font-medium">
                                   {artisan.experience ? `${artisan.experience} years` : 'N/A'}
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">
+                                <div className="text-sm text-gray-900 font-medium">
                                   {artisan.address?.city && artisan.address?.state
                                     ? `${artisan.address.city}, ${artisan.address.state}`
                                     : 'N/A'}
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">{artisan.phoneNumber || 'N/A'}</div>
+                                <div className="text-sm text-gray-900 font-medium">{artisan.phoneNumber || 'N/A'}</div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 {artisan.verificationStatus === 'verified' ? (
-                                  <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                  <motion.span 
+                                    whileHover={{ scale: 1.05 }}
+                                    className="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-full bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-200 shadow-sm"
+                                  >
                                     Verified
-                                  </span>
+                                  </motion.span>
                                 ) : artisan.verificationStatus === 'pending' ? (
-                                  <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                  <motion.span 
+                                    whileHover={{ scale: 1.05 }}
+                                    className="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-full bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-700 border border-yellow-200 shadow-sm"
+                                  >
                                     Pending
-                                  </span>
+                                  </motion.span>
                                 ) : (
-                                  <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                  <motion.span 
+                                    whileHover={{ scale: 1.05 }}
+                                    className="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-full bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border border-gray-300 shadow-sm"
+                                  >
                                     {artisan.verificationStatus}
-                                  </span>
+                                  </motion.span>
                                 )}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                <button
+                                <motion.button
+                                  whileHover={{ scale: 1.05, boxShadow: "0 10px 20px -10px rgba(120, 59, 232, 0.4)" }}
+                                  whileTap={{ scale: 0.95 }}
                                   onClick={() => openConnectionModal(artisan)}
-                                  className="inline-flex items-center gap-1 px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition"
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-purple-700 transition font-bold shadow-lg"
                                 >
-                                  <Send className="w-3 h-3" />
+                                  <Send className="w-4 h-4" />
                                   Connect
-                                </button>
+                                </motion.button>
                               </td>
-                            </tr>
+                            </motion.tr>
                           );
                         }).filter(Boolean)}
                       </tbody>
                     </table>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="bg-white rounded-lg shadow-md px-6 py-4 mt-4 flex items-center justify-between">
-                    <div className="text-sm text-gray-700">
-                      Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, artisans.length)} of {artisans.length} artisans
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="bg-white rounded-2xl shadow-xl px-6 py-5 mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-2 border-purple-100"
+                  >
+                    <div className="text-sm text-gray-700 font-medium">
+                      Showing <span className="font-bold text-[#783be8]">{indexOfFirstItem + 1}</span> to <span className="font-bold text-[#783be8]">{Math.min(indexOfLastItem, artisans.length)}</span> of <span className="font-bold text-[#783be8]">{artisans.length}</span> artisans
                     </div>
-                    <div className="flex gap-2">
-                      <button
+                    <div className="flex gap-2 flex-wrap justify-center">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => goToPage(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="inline-flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center gap-1 px-4 py-2 border-2 border-purple-200 rounded-xl text-sm font-bold text-gray-700 bg-white hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       >
                         <ChevronLeft className="w-4 h-4" />
                         Previous
-                      </button>
+                      </motion.button>
 
                       <div className="flex gap-1">
                         {[...Array(totalPages)].map((_, index) => {
@@ -408,38 +521,42 @@ const BrowseArtisans = () => {
                             (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
                           ) {
                             return (
-                              <button
+                              <motion.button
                                 key={pageNumber}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={() => goToPage(pageNumber)}
-                                className={`px-3 py-2 border rounded-md text-sm font-medium ${
+                                className={`px-4 py-2 border-2 rounded-xl text-sm font-bold transition-all ${
                                   currentPage === pageNumber
-                                    ? 'bg-teal-600 text-white border-teal-600'
-                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                    ? 'bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white border-[#783be8] shadow-lg'
+                                    : 'bg-white text-gray-700 border-purple-200 hover:bg-purple-50'
                                 }`}
                               >
                                 {pageNumber}
-                              </button>
+                              </motion.button>
                             );
                           } else if (
                             pageNumber === currentPage - 2 ||
                             pageNumber === currentPage + 2
                           ) {
-                            return <span key={pageNumber} className="px-2 py-2">...</span>;
+                            return <span key={pageNumber} className="px-2 py-2 text-gray-500 font-bold">...</span>;
                           }
                           return null;
                         })}
                       </div>
 
-                      <button
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => goToPage(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className="inline-flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center gap-1 px-4 py-2 border-2 border-purple-200 rounded-xl text-sm font-bold text-gray-700 bg-white hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       >
                         Next
                         <ChevronRight className="w-4 h-4" />
-                      </button>
+                      </motion.button>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
               </>
             )}
@@ -447,66 +564,99 @@ const BrowseArtisans = () => {
         ) : (
           /* My Connections View */
           loading ? (
-            <div className="text-center py-12 bg-white rounded-lg shadow-md">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading connections...</p>
-            </div>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-20 bg-white rounded-2xl shadow-xl border-2 border-purple-100"
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="inline-block"
+              >
+                <div className="w-16 h-16 border-4 border-[#783be8] border-t-transparent rounded-full"></div>
+              </motion.div>
+              <p className="mt-6 text-gray-700 font-semibold text-lg">Loading connections...</p>
+            </motion.div>
           ) : myConnections.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-md p-12 text-center">
-              <p className="text-gray-500 text-lg">No connected artisans yet</p>
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl shadow-xl p-16 text-center border-2 border-purple-100"
+            >
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <MessageCircle className="w-20 h-20 text-purple-300 mx-auto mb-6" />
+              </motion.div>
+              <p className="text-gray-700 text-xl font-semibold mb-2">No connected artisans yet</p>
+              <p className="text-gray-500">Start connecting with artisans to build your network</p>
+            </motion.div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {myConnections.map((connection) => {
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+            >
+              {myConnections.map((connection, index) => {
                 const artisan = connection.artisanProfile;
                 return (
-                  <div key={connection._id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+                  <motion.div 
+                    key={connection._id} 
+                    variants={scaleIn}
+                    whileHover={{ y: -8, boxShadow: "0 20px 40px -12px rgba(120, 59, 232, 0.3)" }}
+                    className="bg-white rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all border-2 border-purple-100"
+                  >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-semibold text-gray-900">{connection.artisan.name}</h3>
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-lg font-extrabold text-gray-900">{connection.artisan.name}</h3>
                           {artisan?.isExpertVerified && (
-                            <BadgeCheck className="w-5 h-5 text-blue-500 fill-blue-100" />
+                            <BadgeCheck className="w-5 h-5 text-[#783be8] fill-purple-100" />
                           )}
                         </div>
-                        <p className="text-sm text-gray-500">{connection.artisan.email}</p>
+                        <p className="text-sm text-gray-500 font-medium">{connection.artisan.email}</p>
                       </div>
                     </div>
 
                     {artisan && (
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Briefcase className="w-4 h-4 text-teal-600" />
-                          <span className="capitalize">
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center gap-3 text-sm text-gray-700 bg-purple-50 px-3 py-2 rounded-lg border border-purple-100">
+                          <Briefcase className="w-5 h-5 text-[#783be8]" />
+                          <span className="capitalize font-semibold">
                             {artisan.artType === 'others' ? artisan.otherArtType : artisan.artType.replace(/_/g, ' ')}
                           </span>
                         </div>
                         {artisan.phoneNumber && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Phone className="w-4 h-4 text-teal-600" />
-                            <span>{artisan.phoneNumber}</span>
+                          <div className="flex items-center gap-3 text-sm text-gray-700 bg-blue-50 px-3 py-2 rounded-lg border border-blue-100">
+                            <Phone className="w-5 h-5 text-blue-600" />
+                            <span className="font-semibold">{artisan.phoneNumber}</span>
                           </div>
                         )}
                         {artisan.address?.city && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <MapPin className="w-4 h-4 text-teal-600" />
-                            <span>{artisan.address.city}, {artisan.address.state}</span>
+                          <div className="flex items-center gap-3 text-sm text-gray-700 bg-green-50 px-3 py-2 rounded-lg border border-green-100">
+                            <MapPin className="w-5 h-5 text-green-600" />
+                            <span className="font-semibold">{artisan.address.city}, {artisan.address.state}</span>
                           </div>
                         )}
                       </div>
                     )}
 
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.05, boxShadow: "0 10px 20px -10px rgba(120, 59, 232, 0.4)" }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => openChat(connection)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-purple-700 transition font-bold shadow-lg"
                     >
-                      <MessageCircle className="w-4 h-4" />
+                      <MessageCircle className="w-5 h-5" />
                       Open Chat
-                    </button>
-                  </div>
+                    </motion.button>
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           )
         )}
       </main>
@@ -518,80 +668,101 @@ const BrowseArtisans = () => {
 
       {/* Connection Modal */}
       {showModal && selectedArtisan && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={closeModal}
+        >
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0, y: 50 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 50 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 border-2 border-purple-200"
+          >
+            <h3 className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 bg-clip-text text-transparent mb-6">
               Connect with {selectedArtisan.user?.name || 'Artisan'}
             </h3>
 
-            <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-600 space-y-1">
-                <p><strong>Art Type:</strong> {formatArtType(selectedArtisan.artType, selectedArtisan.otherArtType)}</p>
-                <p><strong>Experience:</strong> {selectedArtisan.experience ? `${selectedArtisan.experience} years` : 'N/A'}</p>
-                <p><strong>Location:</strong> {selectedArtisan.address?.city || 'N/A'}, {selectedArtisan.address?.state || 'N/A'}</p>
+            <div className="mb-6 p-5 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-xl border-2 border-purple-200">
+              <div className="text-sm text-gray-700 space-y-2 font-medium">
+                <p><strong className="text-[#783be8]">Art Type:</strong> {formatArtType(selectedArtisan.artType, selectedArtisan.otherArtType)}</p>
+                <p><strong className="text-[#783be8]">Experience:</strong> {selectedArtisan.experience ? `${selectedArtisan.experience} years` : 'N/A'}</p>
+                <p><strong className="text-[#783be8]">Location:</strong> {selectedArtisan.address?.city || 'N/A'}, {selectedArtisan.address?.state || 'N/A'}</p>
               </div>
             </div>
 
-            <div className="space-y-4 mb-6">
+            <div className="space-y-5 mb-8">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Message <span className="text-gray-500">(Optional)</span>
+                <label className="block text-sm font-bold text-gray-700 mb-3">
+                  Message <span className="text-gray-500 font-normal">(Optional)</span>
                 </label>
                 <textarea
                   value={connectionMessage}
                   onChange={(e) => setConnectionMessage(e.target.value)}
                   rows="3"
                   maxLength="500"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 resize-none"
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] resize-none font-medium transition-all"
                   placeholder="Introduce yourself and why you'd like to connect..."
                 />
-                <p className="text-xs text-gray-500 mt-1">{connectionMessage.length}/500</p>
+                <p className="text-xs text-gray-500 mt-2 font-medium">{connectionMessage.length}/500</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Purpose <span className="text-gray-500">(Optional)</span>
+                <label className="block text-sm font-bold text-gray-700 mb-3">
+                  Purpose <span className="text-gray-500 font-normal">(Optional)</span>
                 </label>
                 <textarea
                   value={connectionPurpose}
                   onChange={(e) => setConnectionPurpose(e.target.value)}
                   rows="2"
                   maxLength="500"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 resize-none"
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-[#783be8] focus:border-[#783be8] resize-none font-medium transition-all"
                   placeholder="What program or opportunity are you reaching out about?"
                 />
-                <p className="text-xs text-gray-500 mt-1">{connectionPurpose.length}/500</p>
+                <p className="text-xs text-gray-500 mt-2 font-medium">{connectionPurpose.length}/500</p>
               </div>
             </div>
 
             <div className="flex gap-3 justify-end">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={closeModal}
                 disabled={sendingRequest}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
+                className="px-6 py-3 border-2 border-purple-200 rounded-xl text-gray-700 hover:bg-purple-50 transition font-bold disabled:opacity-50"
               >
                 Cancel
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 20px -10px rgba(120, 59, 232, 0.4)" }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleSendConnection}
                 disabled={sendingRequest}
-                className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-3 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-purple-700 transition font-bold shadow-lg disabled:opacity-50 flex items-center gap-2"
               >
                 {sendingRequest ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                    />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <Send className="w-4 h-4" />
+                    <Send className="w-5 h-5" />
                     Send Request
                   </>
                 )}
-              </button>
+              </motion.button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
     </div>
   );
