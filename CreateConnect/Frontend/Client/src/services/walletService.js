@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/wallet';
+const API_URL = 'https://convergence-f7s8.onrender.com/api/wallet';
 
 const getAuthHeader = (token) => ({
   headers: {

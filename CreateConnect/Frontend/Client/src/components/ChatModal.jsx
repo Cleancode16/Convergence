@@ -24,7 +24,7 @@ const ChatModal = ({ connection, onClose }) => {
     : { _id: connection.ngo._id || connection.ngo, name: connection.ngo.name || 'NGO' };
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:3000');
+    socketRef.current = io('https://convergence-f7s8.onrender.com');
     
     socketRef.current.emit('register', userInfo._id);
     socketRef.current.emit('join-connection', connection._id);

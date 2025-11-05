@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/artisan';
+const API_URL = 'https://convergence-f7s8.onrender.com/api/artisan';
 
 const getAuthHeader = (token) => ({
   headers: {

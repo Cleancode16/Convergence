@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/messages';
+const API_URL = 'https://convergence-f7s8.onrender.com/api/messages';
 
 const getAuthHeader = (token) => ({
   headers: {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/art-stories';
+const API_URL = 'https://convergence-f7s8.onrender.com/api/art-stories';
 
 const getAuthHeader = (token) => ({
   headers: {
