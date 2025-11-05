@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { ArrowLeft, TrendingUp, ShoppingCart, Package, DollarSign, Calendar, Download, Sparkles } from 'lucide-react';
+import { ArrowLeft, TrendingUp, ShoppingCart, Package, DollarSign, Calendar, Download, Sparkles, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { getSalesAnalytics, getProductAnalytics } from '../services/analyticsService';
 import { getProducts } from '../services/productService';
 
@@ -17,24 +17,43 @@ const Analytics = () => {
   const [productAnalytics, setProductAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [productLoading, setProductLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [productError, setProductError] = useState(null);
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
 
   useEffect(() => {
+    if (!userInfo || !userInfo.token) {
+      navigate('/login');
+      return;
+    }
     fetchAnalytics();
-  }, [period]);
+  }, [period, userInfo, navigate]);
 
   useEffect(() => {
+    if (!userInfo || !userInfo.token) {
+      return;
+    }
     fetchProducts();
-  }, []);
+  }, [userInfo]);
 
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await getSalesAnalytics(period, userInfo.token);
+      
+      if (!data || !data.data) {
+        setError('No analytics data available');
+        setAnalytics(null);
+        return;
+      }
+      
       setAnalytics(data.data);
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      setError(error.response?.data?.message || 'Failed to load analytics data. Please try again.');
+      setAnalytics(null);
     } finally {
       setLoading(false);
     }
@@ -52,10 +71,20 @@ const Analytics = () => {
   const fetchProductAnalytics = async (productId) => {
     try {
       setProductLoading(true);
+      setProductError(null);
       const data = await getProductAnalytics(productId, userInfo.token);
+      
+      if (!data || !data.data) {
+        setProductError('No analytics data available for this product');
+        setProductAnalytics(null);
+        return;
+      }
+      
       setProductAnalytics(data.data);
     } catch (error) {
       console.error('Error fetching product analytics:', error);
+      setProductError(error.response?.data?.message || 'Failed to load product analytics');
+      setProductAnalytics(null);
     } finally {
       setProductLoading(false);
     }
@@ -63,6 +92,7 @@ const Analytics = () => {
 
   const handleProductSelect = (productId) => {
     setSelectedProduct(productId);
+    setProductError(null);
     if (productId) {
       fetchProductAnalytics(productId);
     } else {
@@ -75,7 +105,7 @@ const Analytics = () => {
       style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 0,
-    }).format(value);
+    }).format(value || 0);
   };
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -83,16 +113,52 @@ const Analytics = () => {
       return (
         <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
           <p className="font-semibold text-gray-900 mb-2">{label}</p>
-          {payload.map((entry, index) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: {entry.name.includes('Revenue') ? formatCurrency(entry.value) : entry.value}
-            </p>
-          ))}
+          {payload.map((entry, index) => {
+            const name = entry.name || '';
+            const isRevenue = typeof name === 'string' && name.includes('Revenue');
+            return (
+              <p key={index} className="text-sm" style={{ color: entry.color }}>
+                {name}: {isRevenue ? formatCurrency(entry.value) : entry.value}
+              </p>
+            );
+          })}
         </div>
       );
     }
     return null;
   };
+
+  const ErrorState = ({ message, onRetry }) => (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center"
+      >
+        <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Unable to Load Analytics</h2>
+        <p className="text-gray-600 mb-6">{message}</p>
+        <div className="flex gap-4 justify-center">
+          <motion.button
+            onClick={onRetry}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl font-semibold"
+          >
+            Retry
+          </motion.button>
+          <motion.button
+            onClick={() => navigate('/artisan-dashboard')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold"
+          >
+            Go Back
+          </motion.button>
+        </div>
+      </motion.div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -109,9 +175,38 @@ const Analytics = () => {
     );
   }
 
+  if (error) {
+    return <ErrorState message={error} onRetry={fetchAnalytics} />;
+  }
+
+  if (!analytics) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center"
+        >
+          <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Analytics Data</h2>
+          <p className="text-gray-600 mb-6">
+            You don't have any sales data yet. Start selling to see your analytics here!
+          </p>
+          <motion.button
+            onClick={() => navigate('/artisan-dashboard')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 bg-gradient-to-r from-indigo-600 via-[#783be8] to-purple-600 text-white rounded-xl font-semibold"
+          >
+            Go to Dashboard
+          </motion.button>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-      {/* Header */}
       <nav className="bg-white shadow-lg border-b-4 border-[#783be8] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -156,7 +251,6 @@ const Analytics = () => {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Period Selector */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -187,8 +281,7 @@ const Analytics = () => {
           </div>
         </motion.div>
 
-        {/* Summary Cards */}
-        {analytics && (
+        {analytics?.summary && (
           <motion.div
             initial="hidden"
             animate="visible"
@@ -263,8 +356,7 @@ const Analytics = () => {
           </motion.div>
         )}
 
-        {/* Revenue Trend Chart */}
-        {analytics && (
+        {analytics?.timeSeriesData && analytics.timeSeriesData.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -301,8 +393,7 @@ const Analytics = () => {
           </motion.div>
         )}
 
-        {/* Orders & Quantity Chart */}
-        {analytics && (
+        {analytics?.timeSeriesData && analytics.timeSeriesData.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -340,41 +431,36 @@ const Analytics = () => {
           </motion.div>
         )}
 
-        {/* Top Products & Category Sales */}
-        <div className="grid grid-cols-1 gap-6 mb-6">
-          {/* Top Products - Full Width */}
-          {analytics && analytics.topProducts.length > 0 && (
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Top Selling Products by Revenue</h2>
-              <ResponsiveContainer width="100%" height={500}>
-                <PieChart>
-                  <Pie
-                    data={analytics.topProducts.slice(0, 8)}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={true}
-                    label={({ product, percent }) => `${product.title.substring(0, 20)}... (${(percent * 100).toFixed(1)}%)`}
-                    outerRadius={180}
-                    fill="#8884d8"
-                    dataKey="revenue"
-                  >
-                    {analytics.topProducts.slice(0, 8).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend 
-                    verticalAlign="bottom" 
-                    height={36}
-                    formatter={(value, entry) => `${entry.payload.product?.title || 'Product'}`}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
+        {analytics?.topProducts && analytics.topProducts.length > 0 && (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Top Selling Products by Revenue</h2>
+            <ResponsiveContainer width="100%" height={500}>
+              <PieChart>
+                <Pie
+                  data={analytics.topProducts.slice(0, 8)}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={true}
+                  label={({ product, percent }) => `${product?.title?.substring(0, 20) || 'Product'}... (${(percent * 100).toFixed(1)}%)`}
+                  outerRadius={180}
+                  fill="#8884d8"
+                  dataKey="revenue"
+                >
+                  {analytics.topProducts.slice(0, 8).map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value, entry) => `${entry.payload.product?.title || 'Product'}`}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        )}
 
-        {/* Product-Specific Analysis */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Product-Specific Analysis</h2>
           
@@ -386,6 +472,7 @@ const Analytics = () => {
               value={selectedProduct || ''}
               onChange={(e) => handleProductSelect(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              disabled={products.length === 0}
             >
               <option value="">-- Choose a product --</option>
               {products.map((product) => (
@@ -394,6 +481,9 @@ const Analytics = () => {
                 </option>
               ))}
             </select>
+            {products.length === 0 && (
+              <p className="text-sm text-gray-500 mt-2">No products available</p>
+            )}
           </div>
 
           {productLoading && (
@@ -402,73 +492,81 @@ const Analytics = () => {
             </div>
           )}
 
+          {productError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <p className="text-red-800 text-sm">{productError}</p>
+            </div>
+          )}
+
           {productAnalytics && !productLoading && (
             <div>
-              {/* Product Summary */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div className="bg-blue-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
                   <p className="text-2xl font-bold text-blue-600">
-                    {formatCurrency(productAnalytics.summary.totalRevenue)}
+                    {formatCurrency(productAnalytics.summary?.totalRevenue)}
                   </p>
                 </div>
                 <div className="bg-green-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600 mb-1">Total Orders</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {productAnalytics.summary.totalOrders}
+                    {productAnalytics.summary?.totalOrders || 0}
                   </p>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600 mb-1">Units Sold</p>
                   <p className="text-2xl font-bold text-purple-600">
-                    {productAnalytics.summary.totalQuantity}
+                    {productAnalytics.summary?.totalQuantity || 0}
                   </p>
                 </div>
                 <div className="bg-orange-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600 mb-1">Avg Order Value</p>
                   <p className="text-2xl font-bold text-orange-600">
-                    {formatCurrency(productAnalytics.summary.averageOrderValue)}
+                    {formatCurrency(productAnalytics.summary?.averageOrderValue)}
                   </p>
                 </div>
               </div>
 
-              {/* Product Sales Trend */}
-              <h3 className="text-lg font-bold text-gray-900 mb-4">30-Day Sales Trend</h3>
-              <ResponsiveContainer width="100%" height={350}>
-                <AreaChart data={productAnalytics.dailySales}>
-                  <defs>
-                    <linearGradient id="productRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#10B981" stopOpacity={0.1}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <XAxis dataKey="date" stroke="#6B7280" style={{ fontSize: '12px' }} />
-                  <YAxis stroke="#6B7280" style={{ fontSize: '12px' }} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend />
-                  <Area 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke="#10B981" 
-                    fillOpacity={1} 
-                    fill="url(#productRevenue)" 
-                    name="Revenue (₹)"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="quantity" 
-                    stroke="#8B5CF6" 
-                    strokeWidth={2}
-                    dot={{ fill: '#8B5CF6', r: 3 }}
-                    name="Quantity"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              {productAnalytics.dailySales && productAnalytics.dailySales.length > 0 && (
+                <>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">30-Day Sales Trend</h3>
+                  <ResponsiveContainer width="100%" height={350}>
+                    <AreaChart data={productAnalytics.dailySales}>
+                      <defs>
+                        <linearGradient id="productRevenue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#10B981" stopOpacity={0.1}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                      <XAxis dataKey="date" stroke="#6B7280" style={{ fontSize: '12px' }} />
+                      <YAxis stroke="#6B7280" style={{ fontSize: '12px' }} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend />
+                      <Area 
+                        type="monotone" 
+                        dataKey="revenue" 
+                        stroke="#10B981" 
+                        fillOpacity={1} 
+                        fill="url(#productRevenue)" 
+                        name="Revenue (₹)"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="quantity" 
+                        stroke="#8B5CF6" 
+                        strokeWidth={2}
+                        dot={{ fill: '#8B5CF6', r: 3 }}
+                        name="Quantity"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </>
+              )}
             </div>
           )}
 
-          {!selectedProduct && !productLoading && (
+          {!selectedProduct && !productLoading && !productError && (
             <div className="text-center py-12 text-gray-500">
               <Package className="w-16 h-16 mx-auto mb-4 opacity-50" />
               <p>Select a product to view detailed analytics</p>
