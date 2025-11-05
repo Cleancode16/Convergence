@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const Donation = require('../models/Donation');
 const User = require('../models/User');
-const NGOProfile = require('../models/NGOProfile'); // Use consistent naming
+const NGOProfile = require('../models/NgoProfile'); // Use consistent naming
 const Transaction = require('../models/Transaction');
 
 // @desc    Create donation
